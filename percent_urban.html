@@ -1,0 +1,106 @@
+<html>
+<head>
+	<script src="lib/d3.v3.min.js"></script>
+	<script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
+	<script src="lib/underscore-min.js"></script>
+	<style>
+		path{ stroke: #ccc;}
+
+		.YlGnBu .q0-5{fill:rgb(255,255,204)}
+		.YlGnBu .q1-5{fill:rgb(161,218,180)}
+		.YlGnBu .q2-5{fill:rgb(65,182,196)}
+		.YlGnBu .q3-5{fill:rgb(44,127,184)}
+		.YlGnBu .q4-5{fill:rgb(37,52,148)}
+
+		.null{ fill: #eee; }
+
+	</style>
+</head>
+<body>
+	<script>
+
+var width = 900,
+	height = 500;
+
+var svg = d3.select( "body" )
+	.append( "svg" )
+	.attr( "class", "YlGnBu" )
+	.attr( "width", width )
+	.attr( "height", height );
+
+var projection = d3.geo.winkel3()
+    .scale(152)
+    .translate([width / 2, height / 2])
+    .precision(.1);
+
+var path = d3.geo.path()
+	.projection( projection );
+
+var classification = d3.scale.threshold()
+    .domain([20, 40, 60, 80,])
+    .range([0,1,2,3,4]);
+
+var jsonData,
+	csvData;
+
+var minYear = 1960,
+	maxYear = 2013,
+	currentYear = 1960;
+
+var animationInterval;
+
+d3.select( "body" )
+	.append( "p" )
+	.attr( "id", "year" );
+
+d3.json( "data/json/countries.json", function(json){
+	jsonData = json;
+	if ( csvData ) createMap();
+});
+d3.csv( "data/csv/percent_urban.csv", function(csv){
+	csvData = csv;
+	if ( jsonData ) createMap();
+});
+
+function createMap(){
+	_.each( csvData, function(row){
+		var feature = _.find( jsonData.features, function(f){
+			return f.properties.adm0_a3 == row["Country Code"];
+		});
+		if ( feature ) feature.properties.data = row;
+	});
+
+	svg.selectAll( "path" )
+		.data( jsonData.features )
+		.enter()
+		.append( "path" )
+		.attr( "d", path );
+
+	updateChoropleth( currentYear );
+	currentYear++;
+	play();
+
+}
+
+function updateChoropleth( fieldName ){
+	svg.selectAll( "path" )
+		.attr( "class", function(d){
+			if ( d.properties.data ) return "q" + classification( d.properties.data[fieldName] ) + "-5";
+			return "null";
+		});
+	d3.select( "p" ).text( fieldName );
+}
+
+function play(){
+	animationInterval = setInterval( function(){
+		updateChoropleth( currentYear );
+		currentYear++;
+		if ( currentYear > maxYear ) currentYear = minYear;
+	},1000);
+}
+function pause(){
+	clearInterval(animationInterval);
+}
+	</script>
+</body>
+</html>
