@@ -13,6 +13,7 @@
 			stroke: black;
 		}
 		#progress{ fill: #ccc; }
+		#chart path{ stroke: black; fill: none;}
 	</style>
 </head>
 <body>
@@ -25,7 +26,7 @@ var svg = d3.select( "body" )
 	.append( "svg" )
 	.attr( "class", "YlGnBu" )
 	.attr( "width", width )
-	.attr( "height", height + 75 );
+	.attr( "height", height + 150 );
 
 var boundary = svg.append("g")
 		.attr( "id", "boundary" );
@@ -38,7 +39,7 @@ var mask = svg.append( "rect" )
 		x: 0,
 		y: height,
 		width: width,
-		height: 75
+		height: 150
 	})
 	.attr( "fill", "white" );
 
@@ -107,15 +108,27 @@ function createMap(){
 		.data( jsonData.features )
 		.enter()
 		.append( "path" )
+		.attr( "id", function(d){ return d.properties.adm0_a3 })
 		.attr( "d", path );
 
 	createLegend();
 	createTimeline();
+	createChart();
 
 	updateChoropleth( currentYear );
 	currentYear++;
 	play();
 
+}
+
+
+function updateChoropleth( fieldName ){
+	countries.selectAll( "path" )
+		.attr( "class", function(d){
+			if ( d.properties.data ) return "q" + classification( d.properties.data[fieldName] ) + "-9";
+			return "null";
+		});
+	d3.select( "p" ).text( fieldName );
 }
 
 function createLegend(){
@@ -135,7 +148,7 @@ function createLegend(){
 function createTimeline(){
 	var timeline = svg.append("g")
 		.attr( "id", "timeline" )
-		.attr( "transform", "translate(15," + (height+40) + ")" );
+		.attr( "transform", "translate(15," + (height+115) + ")" );
 	timeline.append( "rect" )
 		.attr( "id", "progress" )
 		.attr( "x", 0 )
@@ -174,13 +187,30 @@ function updateTimeline(){
 		.attr( "width", (currentYear-minYear) * yearWidth );
 }
 
-function updateChoropleth( fieldName ){
-	countries.selectAll( "path" )
-		.attr( "class", function(d){
-			if ( d.properties.data ) return "q" + classification( d.properties.data[fieldName] ) + "-9";
-			return "null";
-		});
-	d3.select( "p" ).text( fieldName );
+function createChart(){
+	svg.append( "g" )
+		.attr( "id", "chart" )
+		.attr( "transform", "translate(15," + (height+40) + ")" );
+	drawChart( "MYS" );
+}
+
+function drawChart( id ){
+	var chartScale = d3.scale.linear()
+		.domain( [0,100] )
+		.range( [75,0] );
+	var data = d3.select( "#" + id ).datum();
+	var yearWidth = (width-30)/(maxYear-minYear);
+	var d = "";
+	d3.select( "#chart path" ).remove();
+	for ( var year=minYear; year<=maxYear; year++ ){
+		if ( year == minYear ) d += "M";
+		else d += "L";
+		d += Math.round( (year-minYear)*yearWidth ) + " " + chartScale( data.properties.data[year] );
+	}
+	d3.select( "#chart" )
+		.append( "path" )
+		.attr( "d", d );
+
 }
 
 function play(){
