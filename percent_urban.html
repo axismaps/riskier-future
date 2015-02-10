@@ -3,17 +3,16 @@
 	<script src="lib/d3.v3.min.js"></script>
 	<script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
 	<script src="lib/underscore-min.js"></script>
+	<link rel="stylesheet" href="lib/colorbrewer.css">
 	<style>
 		path{ stroke: #ccc;}
-
-		.YlGnBu .q0-5{fill:rgb(255,255,204)}
-		.YlGnBu .q1-5{fill:rgb(161,218,180)}
-		.YlGnBu .q2-5{fill:rgb(65,182,196)}
-		.YlGnBu .q3-5{fill:rgb(44,127,184)}
-		.YlGnBu .q4-5{fill:rgb(37,52,148)}
-
 		.null{ fill: #eee; }
-
+		#boundary path{ fill: #f7ffff;}
+		#year{ text-align: center; font: 24px 'Helvetica Neue';}
+		#timeline line{
+			stroke: black;
+		}
+		#progress{ fill: #ccc; }
 	</style>
 </head>
 <body>
@@ -26,10 +25,27 @@ var svg = d3.select( "body" )
 	.append( "svg" )
 	.attr( "class", "YlGnBu" )
 	.attr( "width", width )
-	.attr( "height", height );
+	.attr( "height", height + 75 );
 
-var projection = d3.geo.winkel3()
-    .scale(152)
+var boundary = svg.append("g")
+		.attr( "id", "boundary" );
+
+var countries = svg.append( "g" )
+	.attr( "id", "countries" );
+
+var mask = svg.append( "rect" )
+	.attr({
+		x: 0,
+		y: height,
+		width: width,
+		height: 75
+	})
+	.attr( "fill", "white" );
+
+var projection = d3.geo.robinson()
+    .scale(450)
+    .center([0,27])
+    .rotate([-100,0] )
     .translate([width / 2, height / 2])
     .precision(.1);
 
@@ -37,8 +53,8 @@ var path = d3.geo.path()
 	.projection( projection );
 
 var classification = d3.scale.threshold()
-    .domain([20, 40, 60, 80,])
-    .range([0,1,2,3,4]);
+    .domain([20, 30, 40, 50, 60, 70, 80, 90])
+    .range([0,1,2,3,4,5,6,7,8]);
 
 var jsonData,
 	csvData;
@@ -49,8 +65,20 @@ var minYear = 1960,
 
 var animationInterval;
 
+var boundaryFeature = {type:"Feature",geometry:{
+	type: "Polygon",
+	coordinates: [[
+		[-180,89.99],
+		[180,89.99],
+		[180,-89.99],
+		[-180,-89.99],
+		[-180,89.99]
+	]]
+}};
+
 d3.select( "body" )
 	.append( "p" )
+	.style( "width", width + "px" )
 	.attr( "id", "year" );
 
 d3.json( "data/json/countries.json", function(json){
@@ -70,11 +98,19 @@ function createMap(){
 		if ( feature ) feature.properties.data = row;
 	});
 
-	svg.selectAll( "path" )
+	boundary
+		.append( "path" )
+		.datum( boundaryFeature )
+		.attr( "d", path );
+
+	countries.selectAll( "path" )
 		.data( jsonData.features )
 		.enter()
 		.append( "path" )
 		.attr( "d", path );
+
+	createLegend();
+	createTimeline();
 
 	updateChoropleth( currentYear );
 	currentYear++;
@@ -82,10 +118,66 @@ function createMap(){
 
 }
 
+function createLegend(){
+	var legend = svg.append( "g" )
+		.attr( "id", "legend" )
+		.attr( "transform", "translate(10," + (height+10) + ")" );
+	classification.range().forEach( function(r,i){
+		legend.append( "rect" )
+			.attr("x",i*20)
+			.attr("y",0)
+			.attr("width",20)
+			.attr("height",20)
+			.attr("class","q"+ r + "-9")
+	});
+}
+
+function createTimeline(){
+	var timeline = svg.append("g")
+		.attr( "id", "timeline" )
+		.attr( "transform", "translate(15," + (height+40) + ")" );
+	timeline.append( "rect" )
+		.attr( "id", "progress" )
+		.attr( "x", 0 )
+		.attr( "y", 0 )
+		.attr( "height", 10);
+	timeline.append( "line" )
+		.attr({
+			x1: 0,
+			y1: 0,
+			x2: width-30,
+			y2: 0
+		});
+	var yearWidth = (width-30)/(maxYear-minYear);
+	for ( var year = minYear; year <= maxYear; year++ ){
+		var bigTick = year == minYear || year == maxYear || year % 5 == 0,
+			x = (year-minYear)*yearWidth;
+		timeline.append( "line" )
+			.attr("x1", x )
+			.attr("y1", 0 )
+			.attr("x2", x )
+			.attr("y2", bigTick ? 10 : 5 );
+		if ( bigTick ){
+			timeline.append( "text" )
+				.attr("x",x)
+				.attr("y",20)
+				.attr("text-anchor","middle")
+				.attr("font-size",12)
+				.text(year)
+		}
+	}
+}
+
+function updateTimeline(){
+	var yearWidth = (width-30)/(maxYear-minYear);
+	d3.select( "#progress" )
+		.attr( "width", (currentYear-minYear) * yearWidth );
+}
+
 function updateChoropleth( fieldName ){
-	svg.selectAll( "path" )
+	countries.selectAll( "path" )
 		.attr( "class", function(d){
-			if ( d.properties.data ) return "q" + classification( d.properties.data[fieldName] ) + "-5";
+			if ( d.properties.data ) return "q" + classification( d.properties.data[fieldName] ) + "-9";
 			return "null";
 		});
 	d3.select( "p" ).text( fieldName );
@@ -94,6 +186,7 @@ function updateChoropleth( fieldName ){
 function play(){
 	animationInterval = setInterval( function(){
 		updateChoropleth( currentYear );
+		updateTimeline();
 		currentYear++;
 		if ( currentYear > maxYear ) currentYear = minYear;
 	},1000);
