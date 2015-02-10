@@ -53,9 +53,21 @@ var projection = d3.geo.robinson()
 var path = d3.geo.path()
 	.projection( projection );
 
-var classification = d3.scale.threshold()
-    .domain([20, 30, 40, 50, 60, 70, 80, 90])
-    .range([0,1,2,3,4,5,6,7,8]);
+var classification = d3.scale.linear()
+    .domain([10, 20, 30, 40, 50, 60, 70, 80, 90])
+    .range([
+		"#ffffd9",
+		"#edf8b1",
+		"#c7e9b4",
+		"#7fcdbb",
+		"#41b6c4",
+		"#1d91c0",
+		"#225ea8",
+		"#253494",
+		"#081d58"
+	]);
+
+var duration = 500;
 
 var jsonData,
 	csvData;
@@ -115,20 +127,22 @@ function createMap(){
 	createTimeline();
 	createChart();
 
-	updateChoropleth( currentYear );
-	currentYear++;
+	nextFrame();
 	play();
 
 }
 
 
-function updateChoropleth( fieldName ){
+function updateChoropleth( fieldName, tween ){
 	countries.selectAll( "path" )
-		.attr( "class", function(d){
-			if ( d.properties.data ) return "q" + classification( d.properties.data[fieldName] ) + "-9";
-			return "null";
+		.transition()
+		.ease( "linear" )
+		.duration( tween ? duration : 0 )
+		.attr( "fill", function(d){ 
+			if ( !d.properties.data ) return "#eee"
+			return classification( d.properties.data[fieldName] ) 
 		});
-	d3.select( "p" ).text( fieldName );
+	setTimeout( function(){ d3.select( "p" ).text( fieldName ) }, tween ? duration : 0 );
 }
 
 function createLegend(){
@@ -141,7 +155,7 @@ function createLegend(){
 			.attr("y",0)
 			.attr("width",20)
 			.attr("height",20)
-			.attr("class","q"+ r + "-9")
+			.attr("fill",r)
 	});
 }
 
@@ -181,9 +195,12 @@ function createTimeline(){
 	}
 }
 
-function updateTimeline(){
+function updateTimeline( tween ){
 	var yearWidth = (width-30)/(maxYear-minYear);
 	d3.select( "#progress" )
+		.transition()
+		.duration( tween ? duration : 0 )
+		.ease( "linear" )
 		.attr( "width", (currentYear-minYear) * yearWidth );
 }
 
@@ -214,12 +231,17 @@ function drawChart( id ){
 }
 
 function play(){
-	animationInterval = setInterval( function(){
-		updateChoropleth( currentYear );
-		updateTimeline();
+	animationInterval = setInterval( nextFrame, duration );
+}
+function nextFrame(){
+	if ( currentYear < minYear ){
 		currentYear++;
-		if ( currentYear > maxYear ) currentYear = minYear;
-	},1000);
+		return;
+	}
+	updateChoropleth( currentYear, currentYear != minYear );
+	updateTimeline( currentYear != minYear );
+	currentYear++;
+	if ( currentYear > maxYear ) currentYear = minYear-1;
 }
 function pause(){
 	clearInterval(animationInterval);
