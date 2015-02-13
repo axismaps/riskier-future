@@ -250,15 +250,22 @@ function drawChart( id ){
 	d3.selectAll( "#chart path" ).remove();
 	d3.select( "#chart g" ).remove();
 	for ( year=minYear; year<=maxYear; year++ ){
+		var command1, command2;
 		if ( year == minYear ){
-			d1 += "M";
-			d2 += "M";
-		} else{
-			d1 += "L";
-			d2 += "L"
-		} 
-		d1 += Math.round( (year-minYear)*yearWidth ) + " " + chartScale( urban[year] );
-		d2 += Math.round( (year-minYear)*yearWidth ) + " " + chartScale( rural[year] );
+			command1 = "M";
+			command2 = "M";
+		} else {
+			if ( isNaN(urban[year]) || urban[year] === "" )
+				command1 = "none";
+			else
+				command1 = "L";
+			if ( isNaN(rural[year]) || rural[year] === "" )
+				command2 = "none";
+			else
+				command2 = "L";
+		}
+		if ( command1 != "none" ) d1 += command1 + Math.round( (year-minYear)*yearWidth ) + " " + chartScale( urban[year] );
+		if ( command2 != "none" ) d2 += command2 + Math.round( (year-minYear)*yearWidth ) + " " + chartScale( rural[year] );
 	}
 	d3.select( "#chart" )
 		.append( "path" )
