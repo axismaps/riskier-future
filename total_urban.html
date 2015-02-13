@@ -19,6 +19,14 @@
 		#chart path{ fill: none;}
 		path#urban{ stroke: #f00; }
 		path#rural{ stroke: #00f;}
+		#axis line{
+			stroke: rgba(0,0,0,.2);
+		}
+		#axis g.tick line{
+			stroke-dasharray: 5 5;
+		}
+		#axis path{ stroke: none;}
+		#axis text{ font-size: 12px;}
 	</style>
 </head>
 <body>
@@ -212,10 +220,10 @@ function createTimeline(){
 		.attr({
 			x1: 0,
 			y1: 0,
-			x2: width-30,
+			x2: width-60,
 			y2: 0
 		});
-	var yearWidth = (width-30)/(maxYear-minYear);
+	var yearWidth = (width-60)/(maxYear-minYear);
 	for ( var year = minYear; year <= maxYear; year++ ){
 		var bigTick = year == minYear || year == maxYear || year % 5 == 0,
 			x = (year-minYear)*yearWidth;
@@ -236,7 +244,7 @@ function createTimeline(){
 }
 
 function updateTimeline( tween ){
-	var yearWidth = (width-30)/(maxYear-minYear);
+	var yearWidth = (width-60)/(maxYear-minYear);
 	d3.select( "#progress" )
 		.transition()
 		.duration( tween ? duration : 0 )
@@ -265,10 +273,11 @@ function drawChart( id ){
 	var chartScale = d3.scale.linear()
 		.domain( [min,max] )
 		.range( [75,0] );
-	var yearWidth = (width-30)/(maxYear-minYear);
+	var yearWidth = (width-60)/(maxYear-minYear);
 	var d1 = "",
 		d2 = "";
 	d3.selectAll( "#chart path" ).remove();
+	d3.select( "#chart g" ).remove();
 	for ( year=minYear; year<=maxYear; year++ ){
 		if ( year == minYear ){
 			d1 += "M";
@@ -288,7 +297,20 @@ function drawChart( id ){
 		.append( "path" )
 		.attr( "id", "rural" )
 		.attr( "d", d2 )
+	var axis = d3.svg.axis()
+		.scale( chartScale )
+		.orient( "right" )
+		.ticks(4)
+		.innerTickSize( (width-60) )
+		.outerTickSize( (width-60) )
+		.tickFormat( function(d){
+			return d/1000000 + "m"
+		})
 
+	d3.select( "#chart" )
+		.append( "g" )
+		.attr( "id", "axis" )
+		.call( axis )
 }
 
 function play(){
