@@ -8,6 +8,7 @@
 	<style>
 		path{ stroke: #ccc; fill: #eee;}
 		circle{ fill: white; stroke: black; fill-opacity: .5;}
+		#legend circle{ fill: none;}
 		.null{ fill: #eee; }
 		#boundary path{ fill: #f7ffff;}
 		#year{ text-align: center; font: 24px 'Helvetica Neue';}
@@ -59,20 +60,6 @@ var projection = d3.geo.robinson()
 
 var path = d3.geo.path()
 	.projection( projection );
-
-var classification = d3.scale.linear()
-    .domain([10, 20, 30, 40, 50, 60, 70, 80, 90])
-    .range([
-		"#ffffd9",
-		"#edf8b1",
-		"#c7e9b4",
-		"#7fcdbb",
-		"#41b6c4",
-		"#1d91c0",
-		"#225ea8",
-		"#253494",
-		"#081d58"
-	]);
 
 var duration = 250;
 
@@ -175,17 +162,41 @@ function updateSymbols( fieldName, tween ){
 }
 
 function createLegend(){
+	var sizes = [10000000,50000000,100000000,500000000];
+	var max = symbolScale( sizes[sizes.length-1] );
 	var legend = svg.append( "g" )
 		.attr( "id", "legend" )
-		.attr( "transform", "translate(10," + (height+10) + ")" );
-	classification.range().forEach( function(r,i){
-		legend.append( "rect" )
-			.attr("x",i*20)
-			.attr("y",0)
-			.attr("width",20)
-			.attr("height",20)
-			.attr("fill",r)
-	});
+		.attr( "transform", "translate(10," + (height-max*2-10) + ")" );
+	legend.append( "rect" )
+		.attr( "fill", "white" )
+		.attr( {
+			x: -20,
+			y: -10,
+			width: max * 2 + 30,
+			height: max * 2 + 20
+		})
+	for ( var i in sizes ){
+		legend.append( "circle" )
+			.attr( "cx", max )
+			.attr( "cy", max )
+			.attr( "r", symbolScale( sizes[i] ) )
+	}
+	legend.append( "rect" )
+		.attr( "fill", "white" )
+		.attr( {
+			x: max,
+			y: -5,
+			width: max + 5,
+			height: max * 2 + 10
+		})
+	for ( var i in sizes ){
+		legend.append( "text" )
+			.text( sizes[i]/1000000 + " million" )
+			.attr( "font-size", 12 )
+			.attr( "dominant-baseline", "middle" )
+			.attr( "x", max + 5)
+			.attr( "y", max - symbolScale( sizes[i] ) )
+	}
 }
 
 function createTimeline(){
