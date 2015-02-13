@@ -6,7 +6,8 @@
 	<script src="lib/underscore-min.js"></script>
 	<link rel="stylesheet" href="lib/colorbrewer.css">
 	<style>
-		path{ stroke: #ccc;}
+		path{ stroke: #ccc; fill: #eee;}
+		circle{ fill: white; stroke: black; fill-opacity: .5;}
 		.null{ fill: #eee; }
 		#boundary path{ fill: #f7ffff;}
 		#year{ text-align: center; font: 24px 'Helvetica Neue';}
@@ -36,6 +37,9 @@ var boundary = svg.append("g")
 
 var countries = svg.append( "g" )
 	.attr( "id", "countries" );
+
+var propSymbols = svg.append( "g" )
+	.attr( "id", "symbols" );
 
 var mask = svg.append( "rect" )
 	.attr({
@@ -70,7 +74,7 @@ var classification = d3.scale.linear()
 		"#081d58"
 	]);
 
-var duration = 100;
+var duration = 250;
 
 var jsonData,
 	csvData;
@@ -95,6 +99,10 @@ var boundaryFeature = {type:"Feature",geometry:{
 	]]
 }};
 
+var symbolScale = d3.scale.sqrt()
+	.domain( [1000000,1000000000] )
+	.range( [5,100] );
+
 d3.select( "body" )
 	.append( "p" )
 	.style( "width", width + "px" )
@@ -115,7 +123,7 @@ queue()
 	});
 
 function createMap(){
-	_.each( csvData, function(row){
+	_.each( urbanTotal, function(row){
 		var feature = _.find( jsonData.features, function(f){
 			return f.properties.adm0_a3 == row["Country Code"];
 		});
@@ -131,8 +139,19 @@ function createMap(){
 		.data( jsonData.features )
 		.enter()
 		.append( "path" )
-		.attr( "id", function(d){ return d.properties.adm0_a3 })
 		.attr( "d", path );
+
+	propSymbols.selectAll( "circle" )
+		.data( jsonData.features )
+		.enter()
+		.append( "circle" )
+		.attr( "cx", function(d){
+			return path.centroid(d)[0];
+		})
+		.attr( "cy", function(d){
+			return path.centroid(d)[1];
+		})
+
 
 	createLegend();
 	createTimeline();
@@ -143,15 +162,14 @@ function createMap(){
 
 }
 
-
-function updateChoropleth( fieldName, tween ){
-	countries.selectAll( "path" )
+function updateSymbols( fieldName, tween ){
+	propSymbols.selectAll( "circle" )
 		.transition()
 		.ease( "linear" )
 		.duration( tween ? duration : 0 )
-		.attr( "fill", function(d){ 
-			if ( !d.properties.data ) return "#eee"
-			return classification( d.properties.data[fieldName] ) 
+		.attr( "r", function(d){ 
+			if ( !d.properties.data ) return 0;
+			return symbolScale( d.properties.data[fieldName] );
 		});
 	setTimeout( function(){ d3.select( "p" ).text( fieldName ) }, tween ? duration : 0 );
 }
@@ -270,7 +288,7 @@ function nextFrame(){
 		currentYear++;
 		return;
 	}
-	updateChoropleth( currentYear, currentYear != minYear );
+	updateSymbols( currentYear, currentYear != minYear );
 	updateTimeline( currentYear != minYear );
 	currentYear++;
 	if ( currentYear > maxYear ) currentYear = minYear-1;
