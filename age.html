@@ -1,0 +1,391 @@
+<html>
+<head>
+	<script src="lib/d3.v3.min.js"></script>
+	<script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
+	<script src="http://d3js.org/queue.v1.min.js"></script>
+	<script src="lib/underscore-min.js"></script>
+	<link rel="stylesheet" href="lib/colorbrewer.css">
+	<style>
+		path{ stroke: #ccc; fill: #eee;}
+		#legend circle{ fill: none;}
+		.null{ fill: #eee; }
+		#boundary path{ fill: #f7ffff;}
+		#year{ text-align: center; font: 24px 'Helvetica Neue';}
+		#timeline line{
+			stroke: black;
+		}
+		#progress{ fill: #ccc; }
+		#chart path{ fill: none;}
+		#chart rect{ fill: #7570b3;}
+		path#a15{ stroke: none; fill: #d95f02; }
+		path#a0{ stroke: none; fill: #1b9e77;}
+		#axis line{
+			stroke: rgba(0,0,0,.2);
+		}
+		#axis g.tick line{
+			stroke-dasharray: 5 5;
+		}
+		#axis path{ stroke: none;}
+		#axis text{ font-size: 12px;}
+
+		#symbols line{
+			stroke: #333;
+		}
+		
+	</style>
+</head>
+<body>
+	<script>
+
+var width = 900,
+	height = 500;
+
+var svg = d3.select( "body" )
+	.append( "svg" )
+	.attr( "class", "YlGnBu" )
+	.attr( "width", width )
+	.attr( "height", height + 150 );
+
+var boundary = svg.append("g")
+		.attr( "id", "boundary" );
+
+var countries = svg.append( "g" )
+	.attr( "id", "countries" );
+
+var chartSymbols = svg.append( "g" )
+	.attr( "id", "symbols" );
+
+var mask = svg.append( "rect" )
+	.attr({
+		x: 0,
+		y: height,
+		width: width,
+		height: 150
+	})
+	.attr( "fill", "white" );
+
+var projection = d3.geo.robinson()
+    .scale(450)
+    .center([0,27])
+    .rotate([-100,0] )
+    .translate([width / 2, height / 2])
+    .precision(.1);
+
+var path = d3.geo.path()
+	.projection( projection );
+
+var duration = 100;
+
+var jsonData,
+	csvData;
+
+var age0_14,
+	age15_64,
+	age65_plus,
+	ruralTotal;
+
+var minYear = 1960,
+	maxYear = 2013,
+	currentYear = 1960;
+
+var animationInterval;
+
+var boundaryFeature = {type:"Feature",geometry:{
+	type: "Polygon",
+	coordinates: [[
+		[-180,89.99],
+		[180,89.99],
+		[180,-89.99],
+		[-180,-89.99],
+		[-180,89.99]
+	]]
+}};
+
+var symbolScale = d3.scale.sqrt()
+	.domain( [0,100] )
+	.range( [0,25] );
+
+d3.select( "body" )
+	.append( "p" )
+	.style( "width", width + "px" )
+	.attr( "id", "year" );
+
+
+queue()
+	.defer( d3.json, "data/json/countries.json" )
+	.defer( d3.csv, "data/csv/age0-14.csv" )
+	.defer( d3.csv, "data/csv/age65-plus.csv" )
+	.defer( d3.csv, "data/csv/age15-64.csv" )
+	.await( function( err, json, a0, a65, a15 ){
+		jsonData = json;
+		age0_14 = _.indexBy( a0, "Country Code" );
+		age65_plus = _.indexBy( a65, "Country Code" );
+		age15_64 = _.indexBy( a15, "Country Code" );
+		createMap();
+	});
+
+function createMap(){
+	_.each( age0_14, function(row){
+		var feature = _.find( jsonData.features, function(f){
+			return f.properties.adm0_a3 == row["Country Code"];
+		});
+		if ( feature ){
+			feature.properties.data = {};
+			feature.properties.data["age0_14"] = row;
+		} 
+	});
+
+	_.each( age15_64, function(row){
+		var feature = _.find( jsonData.features, function(f){
+			return f.properties.adm0_a3 == row["Country Code"];
+		});
+		if ( feature ) feature.properties.data["age15_64"] = row;
+	});
+
+	_.each( age65_plus, function(row){
+		var feature = _.find( jsonData.features, function(f){
+			return f.properties.adm0_a3 == row["Country Code"];
+		});
+		if ( feature ) feature.properties.data["age65_plus"] = row;
+	});
+
+	boundary
+		.append( "path" )
+		.datum( boundaryFeature )
+		.attr( "d", path );
+
+	countries.selectAll( "path" )
+		.data( jsonData.features )
+		.enter()
+		.append( "path" )
+		.attr( "d", path );
+
+	chartSymbols.selectAll( "g" )
+		.data( jsonData.features )
+		.enter()
+		.append( "g" )
+		.attr( "transform", function(d){
+			return "translate(" + projection(d3.geo.centroid(d)).toString() + ")"
+		})
+		.each( createSymbol );
+
+
+	//createLegend();
+	createTimeline();
+	createChart();
+
+	nextFrame();
+	play();
+
+}
+
+function createSymbol(d){
+	if ( !d.properties.data ) return;
+	d3.select(this).append( "rect" )
+		.attr( "class", "age0_14" )
+		.attr( "x", 2 )
+		.attr( "width", 5 )
+		.attr( "fill", "#1b9e77" )
+		.datum( d.properties.data["age0_14"] );
+	d3.select(this).append( "rect" )
+		.attr( "class", "age15_64" )
+		.attr( "x", 9 )
+		.attr( "width", 5 )
+		.attr( "fill", "#d95f02" )
+		.datum( d.properties.data["age15_64"] );
+	d3.select(this).append( "rect" )
+		.attr( "class", "age65_plus" )
+		.attr( "x", 16 )
+		.attr( "width", 5 )
+		.attr( "fill", "#7570b3" )
+		.datum( d.properties.data["age65_plus"] );
+	d3.select(this).append( "line" )
+		.attr( "x1", 0 )
+		.attr( "x2", 23 )
+		.attr( "y1", symbolScale.range()[1] )
+		.attr( "y2", symbolScale.range()[1] );
+}
+
+function updateSymbols( fieldName, tween ){
+	chartSymbols.selectAll( "g" )
+		.selectAll( "rect" )
+		.transition()
+		.ease( "linear" )
+		.duration( tween ? duration : 0 )
+		.attr( "height", function(d){ 
+			if ( !d ) return 0;
+			return symbolScale( d[fieldName] );
+		})
+		.attr( "y", function(d){ 
+			if ( !d ) return 0;
+			return symbolScale.range()[1] - symbolScale( d[fieldName] );
+		});
+	setTimeout( function(){ d3.select( "p" ).text( fieldName ) }, tween ? duration : 0 );
+}
+
+function createLegend(){
+	var sizes = [10000000,50000000,100000000,500000000];
+	var max = symbolScale( sizes[sizes.length-1] );
+	var legend = svg.append( "g" )
+		.attr( "id", "legend" )
+		.attr( "transform", "translate(10," + (height-max*2-10) + ")" );
+	legend.append( "rect" )
+		.attr( "fill", "white" )
+		.attr( {
+			x: -20,
+			y: -10,
+			width: max * 2 + 30,
+			height: max * 2 + 20
+		})
+	for ( var i in sizes ){
+		legend.append( "circle" )
+			.attr( "cx", max )
+			.attr( "cy", max )
+			.attr( "r", symbolScale( sizes[i] ) )
+	}
+	legend.append( "rect" )
+		.attr( "fill", "white" )
+		.attr( {
+			x: max,
+			y: -5,
+			width: max + 5,
+			height: max * 2 + 10
+		})
+	for ( var i in sizes ){
+		legend.append( "text" )
+			.text( sizes[i]/1000000 + " million" )
+			.attr( "font-size", 12 )
+			.attr( "dominant-baseline", "middle" )
+			.attr( "x", max + 5)
+			.attr( "y", max - symbolScale( sizes[i] ) )
+	}
+}
+
+function createTimeline(){
+	var timeline = svg.append("g")
+		.attr( "id", "timeline" )
+		.attr( "transform", "translate(15," + (height+120) + ")" );
+	timeline.append( "rect" )
+		.attr( "id", "progress" )
+		.attr( "x", 0 )
+		.attr( "y", 0 )
+		.attr( "height", 10);
+	timeline.append( "line" )
+		.attr({
+			x1: 0,
+			y1: 0,
+			x2: width-60,
+			y2: 0
+		});
+	var yearWidth = (width-60)/(maxYear-minYear);
+	for ( var year = minYear; year <= maxYear; year++ ){
+		var bigTick = year == minYear || year == maxYear || year % 5 == 0,
+			x = (year-minYear)*yearWidth;
+		timeline.append( "line" )
+			.attr("x1", x )
+			.attr("y1", 0 )
+			.attr("x2", x )
+			.attr("y2", bigTick ? 10 : 5 );
+		if ( bigTick ){
+			timeline.append( "text" )
+				.attr("x",x)
+				.attr("y",20)
+				.attr("text-anchor","middle")
+				.attr("font-size",12)
+				.text(year)
+		}
+	}
+}
+
+function updateTimeline( tween ){
+	var yearWidth = (width-60)/(maxYear-minYear);
+	d3.select( "#progress" )
+		.transition()
+		.duration( tween ? duration : 0 )
+		.ease( "linear" )
+		.attr( "width", (currentYear-minYear) * yearWidth );
+}
+
+function createChart(){
+	svg.append( "g" )
+		.attr( "id", "chart" )
+		.attr( "transform", "translate(15," + (height+40) + ")" );
+	drawChart( "JPN" );
+}
+
+function drawChart( id ){
+	var a0 = age0_14[ id ];
+	var a15 = age15_64[ id ];
+	var chartScale = d3.scale.linear()
+		.domain( [0,100] )
+		.range( [75,0] );
+	var yearWidth = (width-60)/(maxYear-minYear);
+	var d0 = "",
+		d15 = "";
+	d3.selectAll( "#chart path" ).remove();
+	d3.select( "#chart rect" ).remove();
+	d3.select( "#chart g" ).remove();
+	for ( year=minYear; year<=maxYear; year++ ){
+		if ( year == minYear ){
+			command = "M";
+		} else {
+			command = "L";
+		}
+		var val0 = parseFloat( a0[year] ),
+			val15 = parseFloat( a15[year] ) + val0;
+		d0 += command + Math.round( (year-minYear)*yearWidth ) + " " + chartScale( val0 );
+		d15 += command + Math.round( (year-minYear)*yearWidth ) + " " + chartScale( val15 );
+	}
+	d0 += "V" + chartScale.range()[0] + "H0Z";
+	d15 += "V" + chartScale.range()[0] + "H0Z";
+	d3.select( "#chart" )
+		.append( "rect" )
+		.attr({
+			x: 0,
+			y: 0,
+			width: width-60,
+			height: chartScale.range()[0]
+		});
+	d3.select( "#chart" )
+		.append( "path" )
+		.attr( "id", "a15" )
+		.attr( "d", d15 )
+	d3.select( "#chart" )
+		.append( "path" )
+		.attr( "id", "a0" )
+		.attr( "d", d0 )
+	var axis = d3.svg.axis()
+		.scale( chartScale )
+		.orient( "right" )
+		.ticks(4)
+		.innerTickSize( (width-60) )
+		.outerTickSize( (width-60) )
+		.tickFormat( function(d){
+			return d + "%"
+		})
+
+	d3.select( "#chart" )
+		.append( "g" )
+		.attr( "id", "axis" )
+		.call( axis )
+}
+
+function play(){
+	animationInterval = setInterval( nextFrame, duration );
+}
+function nextFrame(){
+	if ( currentYear < minYear ){
+		currentYear++;
+		return;
+	}
+	updateSymbols( currentYear, currentYear != minYear );
+	updateTimeline( currentYear != minYear );
+	currentYear++;
+	if ( currentYear > maxYear ) currentYear = minYear-1;
+}
+function pause(){
+	clearInterval(animationInterval);
+}
+	</script>
+</body>
+</html>
