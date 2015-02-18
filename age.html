@@ -16,7 +16,7 @@
 		}
 		#progress{ fill: #ccc; }
 		#chart path{ fill: none;}
-		#chart rect{ fill: #7570b3;}
+		path#pop { stroke: none; fill: #7570b3;}
 		path#a15{ stroke: none; fill: #d95f02; }
 		path#a0{ stroke: none; fill: #1b9e77;}
 		#axis line{
@@ -82,7 +82,7 @@ var jsonData,
 var age0_14,
 	age15_64,
 	age65_plus,
-	ruralTotal;
+	population;
 
 var minYear = 1960,
 	maxYear = 2013,
@@ -116,11 +116,13 @@ queue()
 	.defer( d3.csv, "data/csv/age0-14.csv" )
 	.defer( d3.csv, "data/csv/age65-plus.csv" )
 	.defer( d3.csv, "data/csv/age15-64.csv" )
-	.await( function( err, json, a0, a65, a15 ){
+	.defer( d3.csv, "data/csv/population.csv" )
+	.await( function( err, json, a0, a65, a15, pop ){
 		jsonData = json;
 		age0_14 = _.indexBy( a0, "Country Code" );
 		age65_plus = _.indexBy( a65, "Country Code" );
 		age15_64 = _.indexBy( a15, "Country Code" );
+		population = _.indexBy( pop, "Country Code" );
 		createMap();
 	});
 
@@ -316,12 +318,20 @@ function createChart(){
 function drawChart( id ){
 	var a0 = age0_14[ id ];
 	var a15 = age15_64[ id ];
+	var pop = population[ id ];
+	var min = Infinity,
+		max = -Infinity;
+	for ( var year = minYear; year <= maxYear; year++ ){
+		min = Math.min( min, parseInt(pop[year]) );
+		max = Math.max( max, parseInt(pop[year]) );
+	}
 	var chartScale = d3.scale.linear()
-		.domain( [0,100] )
+		.domain( [0,max] )
 		.range( [75,0] );
 	var yearWidth = (width-60)/(maxYear-minYear);
 	var d0 = "",
-		d15 = "";
+		d15 = "",
+		dTotal = "";
 	d3.selectAll( "#chart path" ).remove();
 	d3.select( "#chart rect" ).remove();
 	d3.select( "#chart g" ).remove();
@@ -331,21 +341,20 @@ function drawChart( id ){
 		} else {
 			command = "L";
 		}
-		var val0 = parseFloat( a0[year] ),
-			val15 = parseFloat( a15[year] ) + val0;
-		d0 += command + Math.round( (year-minYear)*yearWidth ) + " " + chartScale( val0 );
-		d15 += command + Math.round( (year-minYear)*yearWidth ) + " " + chartScale( val15 );
+		var val0 = pop[year] * parseFloat( a0[year] )/100,
+			val15 = pop[year] * parseFloat( a15[year] )/100 + val0;
+		d0 += command + Math.round( (year-minYear)*yearWidth ) + " " + chartScale(val0);
+		d15 += command + Math.round( (year-minYear)*yearWidth ) + " " + chartScale(val15);
+		dTotal += command + Math.round( (year-minYear)*yearWidth ) + " " + chartScale( pop[year] );
 	}
 	d0 += "V" + chartScale.range()[0] + "H0Z";
 	d15 += "V" + chartScale.range()[0] + "H0Z";
+	dTotal += "V" + chartScale.range()[0] + "H0Z";
+
 	d3.select( "#chart" )
-		.append( "rect" )
-		.attr({
-			x: 0,
-			y: 0,
-			width: width-60,
-			height: chartScale.range()[0]
-		});
+		.append( "path" )
+		.attr( "id", "pop" )
+		.attr( "d", dTotal )
 	d3.select( "#chart" )
 		.append( "path" )
 		.attr( "id", "a15" )
@@ -361,7 +370,9 @@ function drawChart( id ){
 		.innerTickSize( (width-60) )
 		.outerTickSize( (width-60) )
 		.tickFormat( function(d){
-			return d + "%"
+			if ( d >= 1000000000 ) return d/1000000000 + "b";
+			if ( d == 0 ) return d;
+			return d/1000000 + "m"
 		})
 
 	d3.select( "#chart" )
