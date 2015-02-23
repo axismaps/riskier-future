@@ -463,7 +463,10 @@ function nextFrame(){
 	updateSymbols( currentYear, currentYear != minYear );
 	updateTimeline( currentYear != minYear );
 	currentYear++;
-	if ( currentYear > maxYear ) currentYear = minYear-1;
+	if ( currentYear > maxYear ){
+		currentYear = minYear-1;
+		pause();
+	} 
 }
 function pause(){
 	clearInterval(animationInterval);
