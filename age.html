@@ -28,10 +28,10 @@
 			stroke: rgba(0,0,0,.2);
 		}
 		#axis g.tick line{
-			stroke-dasharray: 5 5;
+			stroke-dasharray: 3 3;
 		}
 		#axis path{ stroke: none;}
-		#axis text{ font-size: 12px;}
+		#axis text{ font-size: 18px;}
 
 		#symbols line{
 			stroke: #333;
@@ -410,7 +410,7 @@ function drawChart( id ){
 	var axis = d3.svg.axis()
 		.scale( chartScale )
 		.orient( "right" )
-		.ticks(4)
+		.ticks(3)
 		.innerTickSize( (width-230) )
 		.outerTickSize( (width-230) )
 		.tickFormat( function(d){
