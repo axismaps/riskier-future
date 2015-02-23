@@ -1,43 +1,71 @@
 <html>
 <head>
+	<meta charset="utf-8">
 	<script src="lib/d3.v3.min.js"></script>
 	<script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
 	<script src="http://d3js.org/queue.v1.min.js"></script>
 	<script src="lib/underscore-min.js"></script>
 	<link rel="stylesheet" href="lib/colorbrewer.css">
 	<style>
+		body{
+			margin: 0;
+			font-family: "Myriad Pro";
+		}
 		path{ stroke: #ccc;}
 		.null{ fill: #eee; }
 		#boundary path{ fill: #f7ffff;}
-		#year{ text-align: center; font: 24px 'Helvetica Neue';}
+		#year{ font-size: 72px;}
 		#timeline line{
-			stroke: black;
+			stroke: #999;
 		}
-		#progress{ fill: #ccc; }
+		#progress{ fill: #e5e5e5; }
 		#chart path{ fill: none;}
-		path#urban{ stroke: #f00; }
-		path#rural{ stroke: #00f;}
+		path.urban, line.urban{ stroke: #000; stroke-width: 3; }
+		path.rural, line.rural{ stroke: #666; stroke-width: 3; stroke-dasharray: 10,3;}
 		#axis line{
 			stroke: rgba(0,0,0,.2);
 		}
 		#axis g.tick line{
-			stroke-dasharray: 5 5;
+			stroke-dasharray: 3 3;
 		}
 		#axis path{ stroke: none;}
-		#axis text{ font-size: 12px;}
+		#axis text{ font-size: 18px;}
+		header{
+			position: absolute;
+			z-index: 10;
+			top: 0;
+			left: 0;
+			height: 65px;
+			background-color: rgba(0,0,0,.5);
+		}
+		header h1{
+			color: white;
+			line-height: 65px;
+			margin: 0;
+			font-weight: normal;
+			font-size: 40px;
+			padding: 0 25px;
+		}
+		header svg{
+			float: right;
+			margin: 15px;
+		}
 	</style>
 </head>
 <body>
+	<header>
+		<h1>Percent Urban Population: 1960–2013</h1>
+	</header>
 	<script>
 
-var width = 900,
-	height = 500;
+var width = 1000,
+	height = 560;
 
 var svg = d3.select( "body" )
 	.append( "svg" )
 	.attr( "class", "YlGnBu" )
 	.attr( "width", width )
-	.attr( "height", height + 150 );
+	.attr( "height", height );
 
 var boundary = svg.append("g")
 		.attr( "id", "boundary" );
@@ -48,11 +76,14 @@ var countries = svg.append( "g" )
 var mask = svg.append( "rect" )
 	.attr({
 		x: 0,
-		y: height,
+		y: height-75,
 		width: width,
-		height: 150
+		height: 75
 	})
 	.attr( "fill", "white" );
+
+d3.select( "header" ).style( "width", width + "px" );
+
 
 var projection = d3.geo.robinson()
     .scale(450)
@@ -102,12 +133,6 @@ var boundaryFeature = {type:"Feature",geometry:{
 		[-180,89.99]
 	]]
 }};
-
-d3.select( "body" )
-	.append( "p" )
-	.style( "width", width + "px" )
-	.attr( "id", "year" );
-
 
 queue()
 	.defer( d3.json, "data/json/countries.json" )
@@ -161,61 +186,101 @@ function updateChoropleth( fieldName, tween ){
 			if ( !d.properties.data ) return "#eee"
 			return classification( d.properties.data[fieldName] ) 
 		});
-	setTimeout( function(){ d3.select( "p" ).text( fieldName ) }, tween ? duration : 0 );
+	setTimeout( function(){ d3.select( "#year" ).text( fieldName ) }, tween ? duration : 0 );
 }
 
 function createLegend(){
-	var legend = svg.append( "g" )
-		.attr( "id", "legend" )
-		.attr( "transform", "translate(10," + (height+10) + ")" );
+	var legend = d3.select( "header" )
+		.insert( "svg", "h1" )
+		.attr( "width", 150)
+		.attr( "height", 35)
+		.append( "g" );
+	var gradient = legend.append( "defs" )
+		.append( "linearGradient" )
+		.attr({
+			id: "grad",
+			x1: "0%",
+			y1: "0%",
+			x2: "100%",
+			y2: "0%"
+		});
+	var len = classification.range().length - 1;
 	classification.range().forEach( function(r,i){
-		legend.append( "rect" )
-			.attr("x",i*20)
-			.attr("y",0)
-			.attr("width",20)
-			.attr("height",20)
-			.attr("fill",r)
+		gradient.append( "stop" )
+			.attr( "offset", i * 100/len + "%")
+			.style( "stop-color", r )
+			.style( "stop-opacity", 1 );
 	});
+
+	legend.append( "rect" )
+		.attr({
+			width: 70,
+			height: 30,
+			x: 5,
+			y: 0,
+			fill: "url(#grad)",
+			stroke: "white"
+		});
+	legend.append( "text" )
+		.text( "0–100%" )
+		.attr( "fill", "white" )
+		.attr( "x", 80 )
+		.attr( "y", 20 );
 }
 
 function createTimeline(){
 	var timeline = svg.append("g")
 		.attr( "id", "timeline" )
-		.attr( "transform", "translate(15," + (height+120) + ")" );
+		.attr( "transform", "translate(180," + (height-75) + ")" );
+	timeline.append( "rect" )
+		.attr( "x", -180 )
+		.attr( "y", -30 )
+		.attr( "height", 30)
+		.attr( "width", width)
+		.attr( "fill", "white" )
+		.attr( "opacity", .75 )
 	timeline.append( "rect" )
 		.attr( "id", "progress" )
 		.attr( "x", 0 )
 		.attr( "y", 0 )
-		.attr( "height", 10);
+		.attr( "height", 75);
 	timeline.append( "line" )
 		.attr({
-			x1: 0,
+			x1: -180,
 			y1: 0,
-			x2: width-60,
+			x2: width,
 			y2: 0
 		});
-	var yearWidth = (width-60)/(maxYear-minYear);
+	var yearWidth = (width-230)/(maxYear-minYear);
 	for ( var year = minYear; year <= maxYear; year++ ){
-		var bigTick = year == minYear || year == maxYear || year % 5 == 0,
+		var bigTick = year == minYear || year == maxYear || year % 10 == 0,
 			x = (year-minYear)*yearWidth;
+		if ( !bigTick ) continue;
 		timeline.append( "line" )
 			.attr("x1", x )
 			.attr("y1", 0 )
 			.attr("x2", x )
-			.attr("y2", bigTick ? 10 : 5 );
-		if ( bigTick ){
+			.attr("y2", bigTick ? 75 : 5 );
+		if ( bigTick && 
+			( Math.abs( year-minYear ) > 3 && Math.abs( maxYear - year ) > 3 || year == minYear || year == maxYear )  ){
 			timeline.append( "text" )
 				.attr("x",x)
-				.attr("y",20)
+				.attr("y",-5)
 				.attr("text-anchor","middle")
-				.attr("font-size",12)
+				.attr("font-size",24)
 				.text(year)
 		}
 	}
+
+	timeline.append( "text" )
+		.attr( "id", "year" )
+		.attr( "x", -170 )
+		.attr( "y", 45 )
+		.attr( "dominant-baseline", "middle")
 }
 
 function updateTimeline( tween ){
-	var yearWidth = (width-60)/(maxYear-minYear);
+	var yearWidth = (width-230)/(maxYear-minYear);
 	d3.select( "#progress" )
 		.transition()
 		.duration( tween ? duration : 0 )
@@ -226,7 +291,7 @@ function updateTimeline( tween ){
 function createChart(){
 	svg.append( "g" )
 		.attr( "id", "chart" )
-		.attr( "transform", "translate(15," + (height+40) + ")" );
+		.attr( "transform", "translate(180," + (height-75) + ")" );
 	drawChart( "MYS" );
 }
 
@@ -241,10 +306,12 @@ function drawChart( id ){
 		if ( parseInt( rural[year] ) < min ) min = parseInt( rural[year] );
 		if ( parseInt( rural[year] ) > max ) max = parseInt( rural[year] );
 	}
+	min = Math.max( 0, min-(max-min)*.05 );
+	max = max + (max-min)*.05;
 	var chartScale = d3.scale.linear()
 		.domain( [min,max] )
 		.range( [75,0] );
-	var yearWidth = (width-60)/(maxYear-minYear);
+	var yearWidth = (width-230)/(maxYear-minYear);
 	var d1 = "",
 		d2 = "";
 	d3.selectAll( "#chart path" ).remove();
@@ -269,19 +336,19 @@ function drawChart( id ){
 	}
 	d3.select( "#chart" )
 		.append( "path" )
-		.attr( "id", "urban" )
+		.attr( "class", "urban" )
 		.attr( "d", d1 )
 	d3.select( "#chart" )
 		.append( "path" )
-		.attr( "id", "rural" )
+		.attr( "class", "rural" )
 		.attr( "d", d2 )
 
 	var axis = d3.svg.axis()
 		.scale( chartScale )
 		.orient( "right" )
-		.ticks(4)
-		.innerTickSize( (width-60) )
-		.outerTickSize( (width-60) )
+		.ticks(3)
+		.innerTickSize( (width-230) )
+		.outerTickSize( (width-230) )
 		.tickFormat( function(d){
 			return d/1000000 + "m"
 		})
@@ -289,7 +356,44 @@ function drawChart( id ){
 	d3.select( "#chart" )
 		.append( "g" )
 		.attr( "id", "axis" )
-		.call( axis )
+		.call( axis );
+
+	d3.select( "#chart" )
+		.append( "line" )
+		.attr({
+			x1: 0,
+			y1: 15,
+			x2: 15,
+			y2: 0,
+			transform: "translate( -175,-25 )",
+			class: "urban"
+		});
+	d3.select( "#chart" )
+		.append( "text" )
+		.text( "urban" )
+		.attr({
+			x: -155,
+			y: -10
+		});
+
+	d3.select( "#chart" )
+		.append( "line" )
+		.attr({
+			x1: 0,
+			y1: 15,
+			x2: 15,
+			y2: 0,
+			transform: "translate( -100,-25 )",
+			class: "rural"
+		});
+
+	d3.select( "#chart" )
+		.append( "text" )
+		.text( "rural" )
+		.attr({
+			x: -80,
+			y: -10
+		});
 
 }
 
@@ -304,7 +408,10 @@ function nextFrame(){
 	updateChoropleth( currentYear, currentYear != minYear );
 	updateTimeline( currentYear != minYear );
 	currentYear++;
-	if ( currentYear > maxYear ) currentYear = minYear-1;
+	if ( currentYear > maxYear ){
+		currentYear = minYear-1;
+		pause();
+	} 
 }
 function pause(){
 	clearInterval(animationInterval);
