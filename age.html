@@ -214,37 +214,40 @@ function createMap(){
 
 function createSymbol(d){
 	if ( !d.properties.data ) return;
-	d3.select(this).append( "rect" )
+	var g = d3.select( this )
+		.append( "g" )
+		.attr( "transform", "translate(-12," + (-symbolScale.range()[1]) + ")" );
+	g.append( "rect" )
 		.attr( "class", "age0_14" )
 		.attr( "x", 2 )
 		.attr( "width", 5 )
 		.attr( "fill", "#1b9e77" )
 		.datum( d.properties.data["age0_14"] );
-	d3.select(this).append( "rect" )
+	g.append( "rect" )
 		.attr( "class", "age15_64" )
 		.attr( "x", 9 )
 		.attr( "width", 5 )
 		.attr( "fill", "#d95f02" )
 		.datum( d.properties.data["age15_64"] );
-	d3.select(this).append( "rect" )
+	g.append( "rect" )
 		.attr( "class", "age65_plus" )
 		.attr( "x", 16 )
 		.attr( "width", 5 )
 		.attr( "fill", "#7570b3" )
 		.datum( d.properties.data["age65_plus"] );
-	d3.select(this).append( "line" )
+	g.append( "line" )
 		.attr( "x1", 0 )
 		.attr( "x2", 23 )
 		.attr( "y1", symbolScale.range()[1] )
 		.attr( "y2", symbolScale.range()[1] );
-	d3.select(this).append( "line" )
+	g.append( "line" )
 		.attr( "x1", 0 )
 		.attr( "x2", 23 )
 		.attr( "y1", symbolScale.range()[1] - symbolScale(25) )
 		.attr( "y2", symbolScale.range()[1] - symbolScale(25) )
 		//.style( "stroke-dasharray", "2,2" )
 		.style( "stroke", "#eee" );
-	d3.select(this).append( "line" )
+	g.append( "line" )
 		.attr( "x1", 0 )
 		.attr( "x2", 23 )
 		.attr( "y1", symbolScale.range()[1] - symbolScale(50) )
