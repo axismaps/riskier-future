@@ -131,9 +131,9 @@ var boundaryFeature = {type:"Feature",geometry:{
 	]]
 }};
 
-var symbolScale = d3.scale.sqrt()
+var symbolScale = d3.scale.linear()
 	.domain( [0,100] )
-	.range( [0,25] );
+	.range( [0,30] );
 
 d3.select( "body" )
 	.append( "p" )
@@ -394,6 +394,7 @@ function drawChart( id ){
 		min = Math.min( min, parseInt(pop[year]) );
 		max = Math.max( max, parseInt(pop[year]) );
 	}
+	max *= 1.05;
 	var chartScale = d3.scale.linear()
 		.domain( [0,max] )
 		.range( [75,0] );
