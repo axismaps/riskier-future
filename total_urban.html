@@ -32,6 +32,7 @@
 		}
 		#axis path{ stroke: none;}
 		#axis text{ font-size: 18px;}
+		#chart-title{ font-size: 18px; }
 		header{
 			position: absolute;
 			z-index: 10;
@@ -312,6 +313,7 @@ function drawChart( id ){
 		d2 = "";
 	d3.selectAll( "#chart path" ).remove();
 	d3.select( "#chart g" ).remove();
+	d3.select( "#chart-title" ).remove();
 	for ( year=minYear; year<=maxYear; year++ ){
 		var command1, command2;
 		if ( year == minYear ){
@@ -390,6 +392,14 @@ function drawChart( id ){
 			x: -80,
 			y: -10
 		});
+
+	d3.select( "#chart" )
+		.append( "text" )
+		.attr( "id", "chart-title" )
+		.attr( "dominant-baseline", "hanging" )
+		.attr( "x", 5 )
+		.attr( "y", 5 )
+		.text( urban["Country Name"] );
 }
 
 function play(){
