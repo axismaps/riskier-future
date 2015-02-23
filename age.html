@@ -13,6 +13,7 @@
 		}
 		path{ stroke: #ccc; fill: #eee;}
 		#legend rect{ stroke: white;}
+		#legend #SYMBOL rect{ stroke: NONE;}
 		#legend text{ fill: white;}
 		.null{ fill: #eee; }
 		#boundary path{ fill: #f7ffff;}
@@ -55,7 +56,7 @@
 		}
 		header svg{
 			float: right;
-			margin: 15px;
+			margin: 10px;
 		}
 	</style>
 </head>
@@ -236,6 +237,20 @@ function createSymbol(d){
 		.attr( "x2", 23 )
 		.attr( "y1", symbolScale.range()[1] )
 		.attr( "y2", symbolScale.range()[1] );
+	d3.select(this).append( "line" )
+		.attr( "x1", 0 )
+		.attr( "x2", 23 )
+		.attr( "y1", symbolScale.range()[1] - symbolScale(25) )
+		.attr( "y2", symbolScale.range()[1] - symbolScale(25) )
+		//.style( "stroke-dasharray", "2,2" )
+		.style( "stroke", "#eee" );
+	d3.select(this).append( "line" )
+		.attr( "x1", 0 )
+		.attr( "x2", 23 )
+		.attr( "y1", symbolScale.range()[1] - symbolScale(50) )
+		.attr( "y2", symbolScale.range()[1] - symbolScale(50) )
+		//.style( "stroke-dasharray", "2,2" )
+		.style( "stroke", "#eee" );
 }
 
 function updateSymbols( fieldName, tween ){
@@ -261,7 +276,7 @@ function createLegend(){
 	var legend = d3.select("header")
 		.insert( "svg", "h1" )
 		.attr( "width", 200 )
-		.attr( "height", 15 )
+		.attr( "height", 60 )
 		.append( "g" )
 		.attr( "id", "legend" )
 	legend
@@ -277,8 +292,8 @@ function createLegend(){
 	legend
 		.append( "rect" )
 		.attr({
-			x: 65,
-			y: 5,
+			x: 5,
+			y: 20,
 			width: 10,
 			height: 10,
 			fill: "#d95f02"
@@ -287,8 +302,8 @@ function createLegend(){
 	legend
 		.append( "rect" )
 		.attr({
-			x: 135,
-			y: 5,
+			x: 5,
+			y: 35,
 			width: 10,
 			height: 10,
 			fill: "#7570b3"
@@ -305,16 +320,75 @@ function createLegend(){
 		.append( "text" )
 		.text( "15–64" )
 		.attr({
-			x: 80,
-			y: 15
+			x: 20,
+			y: 30
 		});
 	legend
 		.append( "text" )
 		.text( "65+" )
 		.attr({
-			x: 150,
-			y:15
+			x: 20,
+			y:45
 		});
+	var symbol = legend.append( "g" )
+		.attr( "id","symbol")
+		.attr( "transform", "translate(90,0)" );
+
+	symbol.append( "rect" )
+		.attr( "class", "age0_14" )
+		.attr( "x", 2 )
+		.attr( "width", 5 )
+		.attr( "fill", "#CCC" )
+		.attr( "height", symbolScale(30))
+		.attr( "y", symbolScale.range()[1] - symbolScale(30) )
+	symbol.append( "rect" )
+		.attr( "class", "age15_64" )
+		.attr( "x", 9 )
+		.attr( "width", 5 )
+		.attr( "fill", "#CCC" )
+		.attr( "height", symbolScale(60))
+		.attr( "y", symbolScale.range()[1] - symbolScale(60) )
+	symbol.append( "rect" )
+		.attr( "class", "age65_plus" )
+		.attr( "x", 16 )
+		.attr( "width", 5 )
+		.attr( "fill", "#CCC" )
+		.attr( "height", symbolScale(10))
+		.attr( "y", symbolScale.range()[1] - symbolScale(10) )
+	symbol.append( "line" )
+		.attr( "x1", 0 )
+		.attr( "x2", 23 )
+		.attr( "y1", symbolScale.range()[1] )
+		.attr( "y2", symbolScale.range()[1] )
+		.style( "stroke", "#fff" );
+	symbol.append( "line" )
+		.attr( "x1", 0 )
+		.attr( "x2", 23 )
+		.attr( "y1", symbolScale.range()[1] - symbolScale(25) )
+		.attr( "y2", symbolScale.range()[1] - symbolScale(25) )
+		//.style( "stroke-dasharray", "2,2" )
+		.style( "stroke", "#fff" );
+	symbol.append( "line" )
+		.attr( "x1", 0 )
+		.attr( "x2", 23 )
+		.attr( "y1", symbolScale.range()[1] - symbolScale(50) )
+		.attr( "y2", symbolScale.range()[1] - symbolScale(50) )
+		//.style( "stroke-dasharray", "2,2" )
+		.style( "stroke", "#fff" );
+	symbol.append( "text" ).text( "50%" )
+		.attr({
+			x: 25,
+			y:symbolScale.range()[1] - symbolScale(50),
+			"dominant-baseline": "middle"
+		})
+		.style("font-size","10px")
+		symbol.append( "text" ).text( "25%" )
+		.attr({
+			x: 25,
+			y:symbolScale.range()[1] - symbolScale(25),
+			"dominant-baseline": "middle"
+		})
+		.style("font-size","10px")
 }
 
 function createTimeline(){
