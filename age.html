@@ -12,7 +12,8 @@
 			font-family: "Myriad Pro";
 		}
 		path{ stroke: #ccc; fill: #eee;}
-		#legend circle{ fill: none;}
+		#legend rect{ stroke: white;}
+		#legend text{ fill: white;}
 		.null{ fill: #eee; }
 		#boundary path{ fill: #f7ffff;}
 		#year{ font-size: 72px;}
@@ -201,7 +202,7 @@ function createMap(){
 		.each( createSymbol );
 
 
-	//createLegend();
+	createLegend();
 	createTimeline();
 	createChart();
 
@@ -257,39 +258,63 @@ function updateSymbols( fieldName, tween ){
 function createLegend(){
 	var sizes = [10000000,50000000,100000000,500000000];
 	var max = symbolScale( sizes[sizes.length-1] );
-	var legend = svg.append( "g" )
+	var legend = d3.select("header")
+		.insert( "svg", "h1" )
+		.attr( "width", 200 )
+		.attr( "height", 15 )
+		.append( "g" )
 		.attr( "id", "legend" )
-		.attr( "transform", "translate(10," + (height-max*2-10) + ")" );
-	legend.append( "rect" )
-		.attr( "fill", "white" )
-		.attr( {
-			x: -20,
-			y: -10,
-			width: max * 2 + 30,
-			height: max * 2 + 20
-		})
-	for ( var i in sizes ){
-		legend.append( "circle" )
-			.attr( "cx", max )
-			.attr( "cy", max )
-			.attr( "r", symbolScale( sizes[i] ) )
-	}
-	legend.append( "rect" )
-		.attr( "fill", "white" )
-		.attr( {
-			x: max,
-			y: -5,
-			width: max + 5,
-			height: max * 2 + 10
-		})
-	for ( var i in sizes ){
-		legend.append( "text" )
-			.text( sizes[i]/1000000 + " million" )
-			.attr( "font-size", 12 )
-			.attr( "dominant-baseline", "middle" )
-			.attr( "x", max + 5)
-			.attr( "y", max - symbolScale( sizes[i] ) )
-	}
+	legend
+		.append( "rect" )
+		.attr({
+			x: 5,
+			y: 5,
+			width: 10,
+			height: 10,
+			fill: "#1b9e77"
+		});
+
+	legend
+		.append( "rect" )
+		.attr({
+			x: 65,
+			y: 5,
+			width: 10,
+			height: 10,
+			fill: "#d95f02"
+		});
+
+	legend
+		.append( "rect" )
+		.attr({
+			x: 135,
+			y: 5,
+			width: 10,
+			height: 10,
+			fill: "#7570b3"
+		});
+
+	legend
+		.append( "text" )
+		.text( "0–14" )
+		.attr({
+			x: 20,
+			y:15
+		});
+	legend
+		.append( "text" )
+		.text( "15–64" )
+		.attr({
+			x: 80,
+			y: 15
+		});
+	legend
+		.append( "text" )
+		.text( "65+" )
+		.attr({
+			x: 150,
+			y:15
+		});
 }
 
 function createTimeline(){
@@ -424,57 +449,7 @@ function drawChart( id ){
 		.attr( "id", "axis" )
 		.call( axis );
 
-	d3.select( "#chart" )
-		.append( "rect" )
-		.attr({
-			x: -175,
-			y: -20,
-			width: 10,
-			height: 10,
-			fill: "#1b9e77"
-		});
-
-	d3.select( "#chart" )
-		.append( "rect" )
-		.attr({
-			x: -120,
-			y: -20,
-			width: 10,
-			height: 10,
-			fill: "#d95f02"
-		});
-
-	d3.select( "#chart" )
-		.append( "rect" )
-		.attr({
-			x: -60,
-			y: -20,
-			width: 10,
-			height: 10,
-			fill: "#7570b3"
-		});
-
-	d3.select( "#chart" )
-		.append( "text" )
-		.text( "0–14" )
-		.attr({
-			x: -160,
-			y: -10
-		});
-	d3.select( "#chart" )
-		.append( "text" )
-		.text( "15–64" )
-		.attr({
-			x: -108,
-			y: -10
-		});
-	d3.select( "#chart" )
-		.append( "text" )
-		.text( "65+" )
-		.attr({
-			x: -48,
-			y: -10
-		});
+	
 }
 
 function play(){
