@@ -13,7 +13,7 @@
 		}
 		path{ stroke: #ccc;}
 		.null{ fill: #eee; }
-		#boundary path{ fill: #f7ffff;}
+		#boundary path{ fill: #fff; stroke: none;}
 		#year{ font-size: 72px;}
 		#timeline line{
 			stroke: #999;
@@ -86,10 +86,10 @@ var mask = svg.append( "rect" )
 d3.select( "header" ).style( "width", width + "px" );
 
 
-var projection = d3.geo.robinson()
-    .scale(450)
-    .center([0,27])
-    .rotate([-100,0] )
+var projection = d3.geo.times()
+	.center([0,5])
+	.rotate( [-25,0])
+    .scale(250)
     .translate([width / 2, height / 2])
     .precision(.1);
 
@@ -97,17 +97,16 @@ var path = d3.geo.path()
 	.projection( projection );
 
 var classification = d3.scale.linear()
-    .domain([10, 20, 30, 40, 50, 60, 70, 80, 90])
+    .domain([20, 30, 40, 50, 60, 70, 80, 90])
     .range([
-		"#ffffd9",
-		"#edf8b1",
-		"#c7e9b4",
-		"#7fcdbb",
-		"#41b6c4",
-		"#1d91c0",
-		"#225ea8",
-		"#253494",
-		"#081d58"
+		"#fcfbfd",
+		"#efedf5",
+		"#dadaeb",
+		"#bcbddc",
+		"#9e9ac8",
+		"#807dba",
+		"#6a51a3",
+		"#54278f"
 	]);
 
 var duration = 100;
@@ -293,7 +292,7 @@ function createChart(){
 	svg.append( "g" )
 		.attr( "id", "chart" )
 		.attr( "transform", "translate(180," + (height-75) + ")" );
-	drawChart( "MYS" );
+	drawChart( "WLD" );
 }
 
 function drawChart( id ){
@@ -352,13 +351,16 @@ function drawChart( id ){
 		.innerTickSize( (width-230) )
 		.outerTickSize( (width-230) )
 		.tickFormat( function(d){
+			if ( d >= 1000000000 ) return d / 1000000000 + "bn"
 			return d/1000000 + "m"
-		})
+		});
 
 	d3.select( "#chart" )
 		.append( "g" )
 		.attr( "id", "axis" )
 		.call( axis );
+
+	d3.selectAll( ".tick text" ).attr( "dy", 0 );
 
 	d3.select( "#chart" )
 		.append( "line" )
@@ -401,9 +403,9 @@ function drawChart( id ){
 		.append( "text" )
 		.attr( "id", "chart-title" )
 		.attr( "dominant-baseline", "hanging" )
-		.attr( "x", 5 )
-		.attr( "y", 5 )
-		.text( urban["Country Name"] );
+		.attr( "x", 7 )
+		.attr( "y", 7 )
+		.text( urban["Country Name"] + " Population" );
 }
 
 function play(){
