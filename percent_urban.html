@@ -10,6 +10,7 @@
 		body{
 			margin: 0;
 			font-family: "Myriad Pro";
+			color: white;
 		}
 		path{ stroke: #ccc;}
 		.null{ fill: #eee; }
@@ -18,12 +19,12 @@
 		#timeline line{
 			stroke: #999;
 		}
-		#progress{ fill: #e5e5e5; }
+		#progress{ fill: rgba(0,0,0,.5); }
 		#chart path{ fill: none;}
-		path.urban, line.urban{ stroke: #000; stroke-width: 3; }
-		path.rural, line.rural{ stroke: #666; stroke-width: 3; stroke-dasharray: 10,3;}
+		path.urban, line.urban{ stroke: #fff; stroke-width: 3; }
+		path.rural, line.rural{ stroke: #fff; stroke-width: 3; stroke-dasharray: 10,3;}
 		#axis line{
-			stroke: rgba(0,0,0,.2);
+			stroke: rgba(255,255,255,.2);
 		}
 		#axis g.tick line{
 			stroke-dasharray: 3 3;
@@ -51,6 +52,7 @@
 			float: right;
 			margin: 15px;
 		}
+		#chart text, #timeline text{ fill: white;}
 	</style>
 </head>
 <body>
@@ -81,7 +83,7 @@ var mask = svg.append( "rect" )
 		width: width,
 		height: 75
 	})
-	.attr( "fill", "white" );
+	.attr( "fill", "rgba(0,0,0,.5)" );
 
 d3.select( "header" ).style( "width", width + "px" );
 
@@ -99,14 +101,14 @@ var path = d3.geo.path()
 var classification = d3.scale.linear()
     .domain([20, 30, 40, 50, 60, 70, 80, 90])
     .range([
-		"#fcfbfd",
-		"#efedf5",
-		"#dadaeb",
-		"#bcbddc",
-		"#9e9ac8",
-		"#807dba",
-		"#6a51a3",
-		"#54278f"
+		"#fff5f0",
+		"#fee0d2",
+		"#fcbba1",
+		"#fc9272",
+		"#fb6a4a",
+		"#ef3b2c",
+		"#cb181d",
+		"#a50f15"
 	]);
 
 var duration = 100;
@@ -237,20 +239,13 @@ function createTimeline(){
 		.attr( "y", -30 )
 		.attr( "height", 30)
 		.attr( "width", width)
-		.attr( "fill", "white" )
-		.attr( "opacity", .75 )
+		.attr( "fill", "rgba(0,0,0,.5)" )
 	timeline.append( "rect" )
 		.attr( "id", "progress" )
 		.attr( "x", 0 )
 		.attr( "y", 0 )
 		.attr( "height", 75);
-	timeline.append( "line" )
-		.attr({
-			x1: -180,
-			y1: 0,
-			x2: width,
-			y2: 0
-		});
+	
 	var yearWidth = (width-230)/(maxYear-minYear);
 	for ( var year = minYear; year <= maxYear; year++ ){
 		var bigTick = year == minYear || year == maxYear || year % 10 == 0,
@@ -262,7 +257,7 @@ function createTimeline(){
 			.attr("x2", x )
 			.attr("y2", bigTick ? 75 : 5 );
 		if ( bigTick && 
-			( Math.abs( year-minYear ) > 3 && Math.abs( maxYear - year ) > 3 || year == minYear || year == maxYear )  ){
+			( Math.abs( year-minYear ) > 3 && Math.abs( maxYear - year ) > 3 || year == maxYear )  ){
 			timeline.append( "text" )
 				.attr("x",x)
 				.attr("y",-5)
@@ -369,14 +364,14 @@ function drawChart( id ){
 			y1: 15,
 			x2: 15,
 			y2: 0,
-			transform: "translate( -175,-25 )",
+			transform: "translate( -25,-25 )",
 			class: "urban"
 		});
 	d3.select( "#chart" )
 		.append( "text" )
 		.text( "urban" )
 		.attr({
-			x: -155,
+			x: -5,
 			y: -10
 		});
 
@@ -387,7 +382,7 @@ function drawChart( id ){
 			y1: 15,
 			x2: 15,
 			y2: 0,
-			transform: "translate( -100,-25 )",
+			transform: "translate( 50,-25 )",
 			class: "rural"
 		});
 
@@ -395,16 +390,15 @@ function drawChart( id ){
 		.append( "text" )
 		.text( "rural" )
 		.attr({
-			x: -80,
+			x: 70,
 			y: -10
 		});
 
 	d3.select( "#chart" )
 		.append( "text" )
 		.attr( "id", "chart-title" )
-		.attr( "dominant-baseline", "hanging" )
-		.attr( "x", 7 )
-		.attr( "y", 7 )
+		.attr( "x", -175 )
+		.attr( "y", -10 )
 		.text( urban["Country Name"] + " Population" );
 }
 
