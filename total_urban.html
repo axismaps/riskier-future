@@ -137,12 +137,14 @@ d3.select( "body" )
 
 
 queue()
-	.defer( d3.json, "data/json/countries.json" )
+	.defer( d3.json, "data/json/admin0.geojson" )
+	.defer( d3.json, "data/json/disputed.geojson" )
 	.defer( d3.csv, "data/csv/percent_urban.csv" )
 	.defer( d3.csv, "data/csv/urban_total.csv" )
 	.defer( d3.csv, "data/csv/rural_total.csv" )
-	.await( function( err, json, csv, urban, rural ){
+	.await( function( err, json, disp, csv, urban, rural ){
 		jsonData = json;
+		jsonData.features = jsonData.features.concat( disp.features );
 		csvData = csv;
 		urbanTotal = _.indexBy( urban, "Country Code" );
 		ruralTotal = _.indexBy( rural, "Country Code" );
@@ -151,10 +153,11 @@ queue()
 
 function createMap(){
 	_.each( urbanTotal, function(row){
-		var feature = _.find( jsonData.features, function(f){
-			return f.properties.adm0_a3 == row["Country Code"];
+		_.each( jsonData.features, function(f){
+			if ( f.properties.code == row["Country Code"] ){
+				f.properties.data = row;
+			}
 		});
-		if ( feature ) feature.properties.data = row;
 	});
 
 	boundary
@@ -169,7 +172,7 @@ function createMap(){
 		.attr( "d", path );
 
 	propSymbols.selectAll( "circle" )
-		.data( jsonData.features )
+		.data( _.filter( jsonData.features, function(f){ return f.properties.data && f.geometry }) )
 		.enter()
 		.append( "circle" )
 		.attr( "cx", function(d){
