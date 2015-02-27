@@ -22,8 +22,8 @@
 		}
 		#progress{ fill: rgba(0,0,0,.25); }
 		#chart path{ fill: none;}
-		#chart path.urban, line.urban{ stroke: none; fill: #933; }
-		#chart path.rural, line.rural{ stroke: none; fill:#666;}
+		#chart path.urban, rect.urban{ stroke: none; fill: #933; }
+		#chart path.rural, rect.rural{ stroke: none; fill:#ccc;}
 		#axis line{
 			stroke: rgba(255,255,255,.2);
 		}
@@ -126,9 +126,9 @@ var boundaryFeature = {type:"Feature",geometry:{
 
 d3.select( "header" ).style( "width", width + "px" );
 
-var symbolScale = d3.scale.sqrt()
-	.domain( [1000000,1000000000] )
-	.range( [3,50] );
+var symbolScale = d3.scale.linear()
+	.domain( [1000000,750000000] )
+	.range( [3,75] );
 
 d3.select( "body" )
 	.append( "p" )
@@ -343,42 +343,40 @@ function drawChart( id ){
 
 	d3.selectAll( ".tick text" ).attr( "dy", 0 );
 
-	// d3.select( "#chart" )
-	// 	.append( "line" )
-	// 	.attr({
-	// 		x1: 0,
-	// 		y1: 15,
-	// 		x2: 15,
-	// 		y2: 0,
-	// 		transform: "translate( -25,-25 )",
-	// 		class: "urban"
-	// 	});
-	// d3.select( "#chart" )
-	// 	.append( "text" )
-	// 	.text( "urban" )
-	// 	.attr({
-	// 		x: -5,
-	// 		y: -10
-	// 	});
+	d3.select( "#chart" )
+		.append( "rect" )
+		.attr({
+			x: -25,
+			y: -25,
+			width: 15,
+			height: 15,
+			class: "urban"
+		});
+	d3.select( "#chart" )
+		.append( "text" )
+		.text( "urban" )
+		.attr({
+			x: -5,
+			y: -10
+		});
 
-	// d3.select( "#chart" )
-	// 	.append( "line" )
-	// 	.attr({
-	// 		x1: 0,
-	// 		y1: 15,
-	// 		x2: 15,
-	// 		y2: 0,
-	// 		transform: "translate( 50,-25 )",
-	// 		class: "rural"
-	// 	});
+	d3.select( "#chart" )
+		.append( "rect" )
+		.attr({
+			x: 50,
+			y: -25,
+			width: 15,
+			height: 15,
+			class: "rural"
+		});
 
-	// d3.select( "#chart" )
-	// 	.append( "text" )
-	// 	.text( "rural" )
-	// 	.attr({
-	// 		x: 70,
-	// 		y: -10
-	// 	});
+	d3.select( "#chart" )
+		.append( "text" )
+		.text( "rural" )
+		.attr({
+			x: 70,
+			y: -10
+		});
 
 	d3.select( "#chart" )
 		.append( "text" )
