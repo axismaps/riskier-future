@@ -396,49 +396,55 @@ function drawChart( id ){
 		.attr( "y", -10 )
 		.text( urban["Country Name"] + " Urban Population" );
 
-	// d3.select( "#chart" )
-	// 	.append( "line" )
-	// 	.attr({
-	// 		x1: (2007-minYear) * yearWidth,
-	// 		x2: (2007-minYear) * yearWidth,
-	// 		y1: chartScale(50),
-	// 		y2: -110
-	// 	})
-	// 	.attr( "stroke", "black" )
+	d3.select( "#chart" )
+		.append( "line" )
+		.attr({
+			x1: (2007-minYear) * yearWidth,
+			x2: (2007-minYear) * yearWidth,
+			y1: chartScale(50),
+			y2: -130
+		})
+		.attr( "stroke", "black" )
 	
 	d3.select( "#chart" )
 		.append( "rect" )
 		.attr({
-			x: (2007-minYear) * yearWidth - 70,
-			y: -110,
+			x: (2007-minYear) * yearWidth,
+			y: -130,
 			width: 140,
-			height: 65,
+			height: 85,
 			fill: "rgba(0,0,0,.75)"
 		})
-	d3.select( "#chart" )
-	 	.append( "path" )
-	 	.attr( "d","M" + ((2007-minYear) * yearWidth) + "," + chartScale(50) + "L" + ((2007-minYear) * yearWidth-9) + ",-45h18Z" )
-	 	.style( "fill", "rgba(0,0,0,.75)")
-	 	.style( "stroke","none")
+	// d3.select( "#chart" )
+	//  	.append( "path" )
+	//  	.attr( "d","M" + ((2007-minYear) * yearWidth) + "," + chartScale(50) + "L" + ((2007-minYear) * yearWidth-9) + ",-45h18Z" )
+	//  	.style( "fill", "rgba(0,0,0,.75)")
+	//  	.style( "stroke","none")
 	var flag = d3.select("#chart")
 		.append( "text" )
 		.attr({
-			x: (2007-minYear) * yearWidth,
-			y: -89,
-			"text-anchor":"middle"
+			x: (2007-minYear) * yearWidth + 5,
+			y: -109
 		})
 	flag.append( "tspan" )
 		.text( "2007" )
 		.attr( "font-size", "1.4em")
 		
 	flag.append( "tspan" )
-		.text( "Urban population")
+		.text( "More than 50% of the ")
 		.attr( "dy", 20)
-		.attr("x",(2007-minYear) * yearWidth)
+		.attr("x",(2007-minYear) * yearWidth + 5)
+		.attr( "font-size", "14px")
 	flag.append( "tspan" )
-		.text( "surpasses rural")
+		.text( "world now lives in")
 		.attr( "dy", 16)
-		.attr("x",(2007-minYear) * yearWidth )
+		.attr("x",(2007-minYear) * yearWidth + 5)
+		.attr( "font-size", "14px")
+	flag.append( "tspan" )
+		.text( "urban areas.")
+		.attr( "dy", 16)
+		.attr("x",(2007-minYear) * yearWidth + 5)
+		.attr( "font-size", "14px")
 		
 }
 
