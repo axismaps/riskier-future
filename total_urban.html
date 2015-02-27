@@ -13,7 +13,7 @@
 		}
 		path{ stroke: #ccc; fill: #eee;}
 		circle{ fill: white; stroke: black; fill-opacity: .5;}
-		#legend circle{ fill: none;}
+		#legend circle{ fill: rgba(255,255,255,.5);}
 		.null{ fill: #eee; }
 		#boundary path{ fill: #fff; stroke:none;}
 		#year{ font-size: 72px;}
@@ -51,7 +51,7 @@
 		}
 		header svg{
 			float: right;
-			margin: 15px;
+			margin: 5px;
 		}
 		header img{
 			float: right;
@@ -188,7 +188,7 @@ function createMap(){
 		})
 
 
-	//createLegend();
+	createLegend();
 	createChart();
 	createTimeline();
 	
@@ -211,28 +211,33 @@ function updateSymbols( fieldName, tween ){
 }
 
 function createLegend(){
-	var sizes = [10000000,50000000,100000000,500000000];
+	var sizes = [10000000,100000000,250000000,500000000];
 	var max = symbolScale( sizes[sizes.length-1] );
+	var legendLabels = d3.select( "header" )
+		.append ( "svg" )
+		.attr( "width", 40 )
+		.attr( "height", max * 2 + 10 )
 	var legend = d3.select( "header" )
-		.insert ( "svg", "h1" )
-		.attr( "width", max*2 + 10 )
-		.attr( "height", 30 )
+		.append ( "svg" )
+		.attr( "width", max )
+		.attr( "height", max * 2 + 10 )
 		.append( "g" )
 		.attr( "id", "legend" );
-	for ( var i in sizes ){
+	for ( var i= sizes.length-1; i>=0; i-- ){
 		legend.append( "circle" )
-			.attr( "cx", 0 )
-			.attr( "cy", 15 )
+			.attr( "cx", max )
+			.attr( "cy", max * 2 - symbolScale( sizes[i] ) + 5 )
 			.attr( "r", symbolScale( sizes[i] ) )
 	}
-	// for ( var i in sizes ){
-	// 	legend.append( "text" )
-	// 		.text( sizes[i]/1000000 + " million" )
-	// 		.attr( "font-size", 12 )
-	// 		.attr( "dominant-baseline", "middle" )
-	// 		.attr( "x", max + 5)
-	// 		.attr( "y", max - symbolScale( sizes[i] ) )
-	// }
+	
+	for ( var i in sizes ){
+		legendLabels.append( "text" )
+			.text( sizes[i]/1000000 + "m" )
+			.attr( "font-size", 12 )
+			.attr( "dominant-baseline", "middle" )
+			.attr( "x", 0)
+			.attr( "y", 2* (max - symbolScale( sizes[i] )) + 5 )
+	}
 }
 
 function createTimeline(){
