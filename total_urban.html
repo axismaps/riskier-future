@@ -12,8 +12,8 @@
 			font-family: "Unit-Regular";
 		}
 		path{ stroke: #ccc; fill: #eee;}
-		circle{ fill: #ce1b1e; stroke: black; fill-opacity: .7;}
-		#legend circle{ fill: rgba(255,255,255,.5);}
+		#symbols path{ stroke: #999;fill-opacity: .7;}
+		#legend circle{ fill: rgba(255,255,255,.5); stroke: #999;}
 		.null{ fill: #eee; }
 		#boundary path{ fill: #fff; stroke:none;}
 		#year{ font-size: 72px;}
@@ -21,9 +21,9 @@
 			stroke: #999;
 		}
 		#progress{ fill: rgba(0,0,0,.25); }
-		#chart path{ fill: none;}
-		#chart path.urban, rect.urban{ stroke: none; fill: #ce1b1e; }
-		#chart path.rural, rect.rural{ stroke: none; fill:#ccc;}
+		#axis path{ fill: none;}
+		path.urban, rect.urban{ stroke: none; fill: #ce1b1e; }
+		path.rural, rect.rural{ stroke: none; fill:white;}
 		#axis line{
 			stroke: rgba(255,255,255,.2);
 		}
@@ -104,7 +104,7 @@ var projection = d3.geo.times()
 var path = d3.geo.path()
 	.projection( projection );
 
-var duration = 250;
+var duration = 100;
 
 var jsonData,
 	csvData,
@@ -133,8 +133,8 @@ var boundaryFeature = {type:"Feature",geometry:{
 d3.select( "header" ).style( "width", width + "px" );
 
 var symbolScale = d3.scale.linear()
-	.domain( [1000000,750000000] )
-	.range( [3,75] );
+	.domain( [1000000,1000000000] )
+	.range( [3,50] );
 
 d3.select( "body" )
 	.append( "p" )
@@ -179,17 +179,16 @@ function createMap(){
 		.append( "path" )
 		.attr( "d", path );
 
-	propSymbols.selectAll( "circle" )
+	var symb = propSymbols.selectAll( "g" )
 		.data( centroids.features )
 		.enter()
-		.append( "circle" )
-		.attr( "cx", function(d){
-			return projection(d.geometry.coordinates)[0]
-		})
-		.attr( "cy", function(d){
-			return projection(d.geometry.coordinates)[1]
+		.append( "g" )
+		.attr( "transform", function(d){
+			return "translate(" + projection(d.geometry.coordinates).toString() + ")";
 		})
 
+	symb.append( "path" ).attr("class","urban")
+	symb.append( "path" ).attr("class","rural");
 
 	createLegend();
 	createChart();
@@ -200,21 +199,46 @@ function createMap(){
 	play();
 
 }
-
+var pie = d3.layout.pie().sort(null);
 function updateSymbols( fieldName, tween ){
-	propSymbols.selectAll( "circle" )
-		.transition()
-		.ease( "linear" )
-		.duration( tween ? duration : 0 )
-		.attr( "r", function(d){ 
-			if ( !d.properties.data ) return 0;
-			return symbolScale( d.properties.data[fieldName] );
-		});
+	
+	//pie.value( function(d){ return })
+
+	propSymbols.selectAll( "g" )
+		.each( function(d){
+			if ( !d.properties.data ) return;
+			var total = parseInt(urbanTotal[ d.properties.code ][fieldName]) + parseInt(ruralTotal[ d.properties.code ][fieldName]);
+			if ( isNaN(total) ) return;
+			var data = [ urbanTotal[ d.properties.code ][fieldName]/total, ruralTotal[ d.properties.code ][fieldName]/total ];
+			
+			var r = symbolScale( total );
+			//console.log(data,r)
+			var arc = d3.svg.arc().outerRadius(r);
+			//console.log(d.properties.code)
+		//	console.log(data)
+			d3.select(this)	
+				.selectAll( "path" )
+				.data( pie( data ) )
+				//.transition()
+				//.ease( "linear" )
+				//.duration( tween ? duration : 0  )
+				.attr( "d",arc )
+		})
+		// .datum( [ urbanTotal[ d.properties.code ][fieldName], ruralTotal[ d.properties.code ][fieldName] ] )
+		// .selectAll("path")
+		// .data(pie)
+		// .transition()
+		// .ease( "linear" )
+		// .duration( tween ? duration : 0 )
+		// .attr( "d", function(d){ 
+		// 	if ( !d.properties.data ) return "M0,0";
+		// 	return d3.svg.arc().outerRadius(symbolScale( d.properties.data[fieldName] ))(d);//symbolScale( d.properties.data[fieldName] );
+		//});
 	setTimeout( function(){ d3.select( "#year" ).text( fieldName ) }, tween ? duration : 0 );
 }
 
 function createLegend(){
-	var sizes = [10000000,100000000,250000000,500000000];
+	var sizes = [10000000,100000000,250000000,500000000,1000000000];
 	var max = symbolScale( sizes[sizes.length-1] );
 	var legendLabels = d3.select( "header" )
 		.append ( "svg" )
@@ -235,7 +259,7 @@ function createLegend(){
 	
 	for ( var i in sizes ){
 		legendLabels.append( "text" )
-			.text( sizes[i]/1000000 + "m" )
+			.text( sizes[i] >= 1000000000 ? sizes[i]/1000000000 + "b" : sizes[i]/1000000 + "m" )
 			.attr( "font-size", 12 )
 			.attr( "dominant-baseline", "middle" )
 			.attr( "x", 0)
@@ -345,7 +369,7 @@ function drawChart( id ){
 		.outerTickSize( (width-230) )
 		.tickFormat( function(d){
 			if ( d ==0 ) return "";
-			if ( d >= 1000000000 ) return d / 1000000000 + "bn"
+			if ( d >= 1000000000 ) return d / 1000000000 + "b"
 			return d/1000000 + "m"
 		});
 
