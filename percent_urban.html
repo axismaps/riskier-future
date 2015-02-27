@@ -50,13 +50,18 @@
 		}
 		header svg{
 			float: right;
-			margin: 15px;
+			margin: 10px 15px 0 0;
+		}
+		header img{
+			float: right;
+			margin: 5px;
 		}
 		#chart text, #timeline text{ fill: white;}
 	</style>
 </head>
 <body>
 	<header>
+		<img src="logo.png"/>
 		<h1>Percent Urban Population: 1960–2013</h1>
 	</header>
 	<script>
@@ -197,9 +202,9 @@ function updateChoropleth( fieldName, tween ){
 
 function createLegend(){
 	var legend = d3.select( "header" )
-		.insert( "svg", "h1" )
-		.attr( "width", 150)
-		.attr( "height", 35)
+		.append( "svg"  )
+		.attr( "width", 75)
+		.attr( "height", 75)
 		.append( "g" );
 	var gradient = legend.append( "defs" )
 		.append( "linearGradient" )
@@ -225,13 +230,14 @@ function createLegend(){
 			x: 5,
 			y: 0,
 			fill: "url(#grad)",
-			stroke: "white"
+			stroke: "#999"
 		});
 	legend.append( "text" )
-		.text( "0–100%" )
-		.attr( "fill", "white" )
-		.attr( "x", 80 )
-		.attr( "y", 20 );
+		.text( "0 – 100%" )
+		.attr( "fill", "#333" )
+		.attr( "text-anchor", "middle")
+		.attr( "x", 35 )
+		.attr( "y", 50 );
 }
 
 function createTimeline(){
