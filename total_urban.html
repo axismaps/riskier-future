@@ -1,45 +1,80 @@
 <html>
 <head>
+	<meta charset="utf-8">
 	<script src="lib/d3.v3.min.js"></script>
 	<script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
 	<script src="http://d3js.org/queue.v1.min.js"></script>
 	<script src="lib/underscore-min.js"></script>
 	<link rel="stylesheet" href="lib/colorbrewer.css">
 	<style>
+		body{
+			margin: 0;
+			font-family: "Unit-Regular";
+		}
 		path{ stroke: #ccc; fill: #eee;}
 		circle{ fill: white; stroke: black; fill-opacity: .5;}
-		#legend circle{ fill: none;}
+		#legend circle{ fill: rgba(255,255,255,.5);}
 		.null{ fill: #eee; }
-		#boundary path{ fill: #f7ffff;}
-		#year{ text-align: center; font: 24px 'Helvetica Neue';}
+		#boundary path{ fill: #fff; stroke:none;}
+		#year{ font-size: 72px;}
 		#timeline line{
-			stroke: black;
+			stroke: #999;
 		}
-		#progress{ fill: #ccc; }
+		#progress{ fill: rgba(0,0,0,.25); }
 		#chart path{ fill: none;}
-		path#urban{ stroke: #f00; }
-		path#rural{ stroke: #00f;}
+		#chart path.urban, rect.urban{ stroke: none; fill: #933; }
+		#chart path.rural, rect.rural{ stroke: none; fill:#ccc;}
 		#axis line{
-			stroke: rgba(0,0,0,.2);
+			stroke: rgba(255,255,255,.2);
 		}
 		#axis g.tick line{
-			stroke-dasharray: 5 5;
+			stroke-dasharray: 3 3;
 		}
 		#axis path{ stroke: none;}
-		#axis text{ font-size: 12px;}
+		#axis text{ font-size: 18px;}
+		#chart-title{ font-size: 18px; }
+		header{
+			position: absolute;
+			z-index: 10;
+			top: 0;
+			left: 0;
+			height: 65px;
+			background-color: rgba(0,0,0,.5);
+		}
+		header h1{
+			color: white;
+			line-height: 65px;
+			margin: 0;
+			font-weight: normal;
+			font-size: 40px;
+			padding: 0 25px;
+		}
+		header svg{
+			float: right;
+			margin: 5px;
+		}
+		header img{
+			float: right;
+			margin: 10px;
+		}
+		#chart text, #timeline text{ fill: white;}
 	</style>
 </head>
 <body>
+	<header>
+		<img src="logo.png"/>
+		<h1>Total Urban Population: 1960–2013</h1>
+	</header>
 	<script>
 
-var width = 900,
-	height = 500;
+var width = 1000,
+	height = 560;
 
 var svg = d3.select( "body" )
 	.append( "svg" )
 	.attr( "class", "YlGnBu" )
 	.attr( "width", width )
-	.attr( "height", height + 150 );
+	.attr( "height", height );
 
 var boundary = svg.append("g")
 		.attr( "id", "boundary" );
@@ -53,16 +88,16 @@ var propSymbols = svg.append( "g" )
 var mask = svg.append( "rect" )
 	.attr({
 		x: 0,
-		y: height,
+		y: height-105,
 		width: width,
-		height: 150
+		height: 105
 	})
-	.attr( "fill", "white" );
+	.attr( "fill", "rgba(0,0,0,.5)" );
 
-var projection = d3.geo.robinson()
-    .scale(450)
-    .center([0,27])
-    .rotate([-100,0] )
+var projection = d3.geo.times()
+	.center([0,5])
+	.rotate( [-25,0])
+    .scale(250)
     .translate([width / 2, height / 2])
     .precision(.1);
 
@@ -72,7 +107,8 @@ var path = d3.geo.path()
 var duration = 250;
 
 var jsonData,
-	csvData;
+	csvData,
+	centroids;
 
 var urbanTotal,
 	ruralTotal;
@@ -94,9 +130,11 @@ var boundaryFeature = {type:"Feature",geometry:{
 	]]
 }};
 
-var symbolScale = d3.scale.sqrt()
-	.domain( [1000000,1000000000] )
-	.range( [5,100] );
+d3.select( "header" ).style( "width", width + "px" );
+
+var symbolScale = d3.scale.linear()
+	.domain( [1000000,750000000] )
+	.range( [3,75] );
 
 d3.select( "body" )
 	.append( "p" )
@@ -105,13 +143,17 @@ d3.select( "body" )
 
 
 queue()
-	.defer( d3.json, "data/json/countries.json" )
+	.defer( d3.json, "data/json/admin0.geojson" )
+	.defer( d3.json, "data/json/disputed.geojson" )
+	.defer( d3.json, "data/json/centroids.geojson" )
 	.defer( d3.csv, "data/csv/percent_urban.csv" )
 	.defer( d3.csv, "data/csv/urban_total.csv" )
 	.defer( d3.csv, "data/csv/rural_total.csv" )
-	.await( function( err, json, csv, urban, rural ){
+	.await( function( err, json, disp, cent, csv, urban, rural ){
 		jsonData = json;
+		jsonData.features = jsonData.features.concat( disp.features );
 		csvData = csv;
+		centroids = cent;
 		urbanTotal = _.indexBy( urban, "Country Code" );
 		ruralTotal = _.indexBy( rural, "Country Code" );
 		createMap();
@@ -119,10 +161,11 @@ queue()
 
 function createMap(){
 	_.each( urbanTotal, function(row){
-		var feature = _.find( jsonData.features, function(f){
-			return f.properties.adm0_a3 == row["Country Code"];
+		_.each( centroids.features, function(f){
+			if ( f.properties.code == row["Country Code"] ){
+				f.properties.data = row;
+			}
 		});
-		if ( feature ) feature.properties.data = row;
 	});
 
 	boundary
@@ -137,20 +180,21 @@ function createMap(){
 		.attr( "d", path );
 
 	propSymbols.selectAll( "circle" )
-		.data( jsonData.features )
+		.data( centroids.features )
 		.enter()
 		.append( "circle" )
 		.attr( "cx", function(d){
-			return projection(d3.geo.centroid(d))[0]
+			return projection(d.geometry.coordinates)[0]
 		})
 		.attr( "cy", function(d){
-			return projection(d3.geo.centroid(d))[1]
+			return projection(d.geometry.coordinates)[1]
 		})
 
 
 	createLegend();
-	createTimeline();
 	createChart();
+	createTimeline();
+	
 
 	nextFrame();
 	play();
@@ -166,85 +210,80 @@ function updateSymbols( fieldName, tween ){
 			if ( !d.properties.data ) return 0;
 			return symbolScale( d.properties.data[fieldName] );
 		});
-	setTimeout( function(){ d3.select( "p" ).text( fieldName ) }, tween ? duration : 0 );
+	setTimeout( function(){ d3.select( "#year" ).text( fieldName ) }, tween ? duration : 0 );
 }
 
 function createLegend(){
-	var sizes = [10000000,50000000,100000000,500000000];
+	var sizes = [10000000,100000000,250000000,500000000];
 	var max = symbolScale( sizes[sizes.length-1] );
-	var legend = svg.append( "g" )
-		.attr( "id", "legend" )
-		.attr( "transform", "translate(10," + (height-max*2-10) + ")" );
-	legend.append( "rect" )
-		.attr( "fill", "white" )
-		.attr( {
-			x: -20,
-			y: -10,
-			width: max * 2 + 30,
-			height: max * 2 + 20
-		})
-	for ( var i in sizes ){
+	var legendLabels = d3.select( "header" )
+		.append ( "svg" )
+		.attr( "width", 40 )
+		.attr( "height", max * 2 + 10 )
+	var legend = d3.select( "header" )
+		.append ( "svg" )
+		.attr( "width", max )
+		.attr( "height", max * 2 + 10 )
+		.append( "g" )
+		.attr( "id", "legend" );
+	for ( var i= sizes.length-1; i>=0; i-- ){
 		legend.append( "circle" )
 			.attr( "cx", max )
-			.attr( "cy", max )
+			.attr( "cy", max * 2 - symbolScale( sizes[i] ) + 5 )
 			.attr( "r", symbolScale( sizes[i] ) )
 	}
-	legend.append( "rect" )
-		.attr( "fill", "white" )
-		.attr( {
-			x: max,
-			y: -5,
-			width: max + 5,
-			height: max * 2 + 10
-		})
+	
 	for ( var i in sizes ){
-		legend.append( "text" )
-			.text( sizes[i]/1000000 + " million" )
+		legendLabels.append( "text" )
+			.text( sizes[i]/1000000 + "m" )
 			.attr( "font-size", 12 )
 			.attr( "dominant-baseline", "middle" )
-			.attr( "x", max + 5)
-			.attr( "y", max - symbolScale( sizes[i] ) )
+			.attr( "x", 0)
+			.attr( "y", 2* (max - symbolScale( sizes[i] )) + 5 )
 	}
 }
 
 function createTimeline(){
 	var timeline = svg.append("g")
 		.attr( "id", "timeline" )
-		.attr( "transform", "translate(15," + (height+120) + ")" );
+		.attr( "transform", "translate(180," + (height-75) + ")" );
+	
 	timeline.append( "rect" )
 		.attr( "id", "progress" )
 		.attr( "x", 0 )
 		.attr( "y", 0 )
-		.attr( "height", 10);
-	timeline.append( "line" )
-		.attr({
-			x1: 0,
-			y1: 0,
-			x2: width-60,
-			y2: 0
-		});
-	var yearWidth = (width-60)/(maxYear-minYear);
+		.attr( "height", 75);
+	
+	var yearWidth = (width-230)/(maxYear-minYear);
 	for ( var year = minYear; year <= maxYear; year++ ){
-		var bigTick = year == minYear || year == maxYear || year % 5 == 0,
+		var bigTick = year == minYear || year == maxYear || year % 10 == 0,
 			x = (year-minYear)*yearWidth;
+		if ( !bigTick ) continue;
 		timeline.append( "line" )
 			.attr("x1", x )
 			.attr("y1", 0 )
 			.attr("x2", x )
-			.attr("y2", bigTick ? 10 : 5 );
-		if ( bigTick ){
+			.attr("y2", bigTick ? 75 : 5 );
+		if ( bigTick && 
+			( Math.abs( year-minYear ) > 3 && Math.abs( maxYear - year ) > 3 || year == maxYear )  ){
 			timeline.append( "text" )
 				.attr("x",x)
-				.attr("y",20)
+				.attr("y",-5)
 				.attr("text-anchor","middle")
-				.attr("font-size",12)
+				.attr("font-size",24)
 				.text(year)
 		}
 	}
+
+	timeline.append( "text" )
+		.attr( "id", "year" )
+		.attr( "x", -170 )
+		.attr( "y", 45 )
+		.attr( "dominant-baseline", "middle")
 }
 
 function updateTimeline( tween ){
-	var yearWidth = (width-60)/(maxYear-minYear);
+	var yearWidth = (width-230)/(maxYear-minYear);
 	d3.select( "#progress" )
 		.transition()
 		.duration( tween ? duration : 0 )
@@ -255,69 +294,109 @@ function updateTimeline( tween ){
 function createChart(){
 	svg.append( "g" )
 		.attr( "id", "chart" )
-		.attr( "transform", "translate(15," + (height+40) + ")" );
-	drawChart( "MYS" );
+		.attr( "transform", "translate(180," + (height-75) + ")" );
+	drawChart( "WLD" );
 }
 
 function drawChart( id ){
 	var urban = urbanTotal[ id ];
 	var rural = ruralTotal[ id ];
-	var min = Infinity,
-		max = -Infinity;
-	for ( var year=minYear; year<=maxYear; year++ ){
-		if ( parseInt( urban[year] ) < min ) min = parseInt( urban[year] );
-		if ( parseInt( urban[year] ) > max ) max = parseInt( urban[year] );
-		if ( parseInt( rural[year] ) < min ) min = parseInt( rural[year] );
-		if ( parseInt( rural[year] ) > max ) max = parseInt( rural[year] );
-	}
+
+
+	var max = ( parseInt(urban[maxYear]) + parseInt(rural[maxYear]) ) * 1.05;
 	var chartScale = d3.scale.linear()
-		.domain( [min,max] )
+		.domain( [0,max] )
 		.range( [75,0] );
-	var yearWidth = (width-60)/(maxYear-minYear);
-	var d1 = "",
-		d2 = "";
+	var yearWidth = (width-230)/(maxYear-minYear);
+	var dUrban = "",
+		dRural = "";
 	d3.selectAll( "#chart path" ).remove();
+	d3.select( "#chart rect" ).remove();
 	d3.select( "#chart g" ).remove();
 	for ( year=minYear; year<=maxYear; year++ ){
-		var command1, command2;
 		if ( year == minYear ){
-			command1 = "M";
-			command2 = "M";
+			command = "M";
 		} else {
-			if ( isNaN(urban[year]) || urban[year] === "" )
-				command1 = "none";
-			else
-				command1 = "L";
-			if ( isNaN(rural[year]) || rural[year] === "" )
-				command2 = "none";
-			else
-				command2 = "L";
+			command = "L";
 		}
-		if ( command1 != "none" ) d1 += command1 + Math.round( (year-minYear)*yearWidth ) + " " + chartScale( urban[year] );
-		if ( command2 != "none" ) d2 += command2 + Math.round( (year-minYear)*yearWidth ) + " " + chartScale( rural[year] );
+	
+		dUrban += command + Math.round( (year-minYear)*yearWidth ) + " " + chartScale(urban[year]);
+		dRural += command + Math.round( (year-minYear)*yearWidth ) + " " + chartScale(parseInt(urban[year]) + parseInt(rural[year]))
 	}
+	dUrban += "V" + chartScale.range()[0] + "H0Z";
+	dRural += "V" + chartScale.range()[0] + "H0Z";
+
 	d3.select( "#chart" )
 		.append( "path" )
-		.attr( "id", "urban" )
-		.attr( "d", d1 )
+		.attr( "class", "rural" )
+		.attr( "d", dRural )
+
 	d3.select( "#chart" )
 		.append( "path" )
-		.attr( "id", "rural" )
-		.attr( "d", d2 )
+		.attr( "class", "urban" )
+		.attr( "d", dUrban )
+	
+
 	var axis = d3.svg.axis()
 		.scale( chartScale )
 		.orient( "right" )
-		.ticks(4)
-		.innerTickSize( (width-60) )
-		.outerTickSize( (width-60) )
+		.ticks(3)
+		.innerTickSize( (width-230) )
+		.outerTickSize( (width-230) )
 		.tickFormat( function(d){
+			if ( d ==0 ) return "";
+			if ( d >= 1000000000 ) return d / 1000000000 + "bn"
 			return d/1000000 + "m"
-		})
+		});
 
 	d3.select( "#chart" )
 		.append( "g" )
 		.attr( "id", "axis" )
-		.call( axis )
+		.call( axis );
+
+	d3.selectAll( ".tick text" ).attr( "dy", 0 );
+
+	d3.select( "#chart" )
+		.append( "rect" )
+		.attr({
+			x: -25,
+			y: -25,
+			width: 15,
+			height: 15,
+			class: "urban"
+		});
+	d3.select( "#chart" )
+		.append( "text" )
+		.text( "urban" )
+		.attr({
+			x: -5,
+			y: -10
+		});
+
+	d3.select( "#chart" )
+		.append( "rect" )
+		.attr({
+			x: 50,
+			y: -25,
+			width: 15,
+			height: 15,
+			class: "rural"
+		});
+
+	d3.select( "#chart" )
+		.append( "text" )
+		.text( "rural" )
+		.attr({
+			x: 70,
+			y: -10
+		});
+
+	d3.select( "#chart" )
+		.append( "text" )
+		.attr( "id", "chart-title" )
+		.attr( "x", -175 )
+		.attr( "y", -10 )
+		.text( urban["Country Name"] + " Population" );
 }
 
 function play(){
@@ -331,7 +410,10 @@ function nextFrame(){
 	updateSymbols( currentYear, currentYear != minYear );
 	updateTimeline( currentYear != minYear );
 	currentYear++;
-	if ( currentYear > maxYear ) currentYear = minYear-1;
+	if ( currentYear > maxYear ){
+		currentYear = minYear-1;
+		pause();
+	} 
 }
 function pause(){
 	clearInterval(animationInterval);

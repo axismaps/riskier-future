@@ -1,50 +1,79 @@
 <html>
 <head>
+	<meta charset="utf-8">
 	<script src="lib/d3.v3.min.js"></script>
 	<script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
 	<script src="http://d3js.org/queue.v1.min.js"></script>
 	<script src="lib/underscore-min.js"></script>
 	<link rel="stylesheet" href="lib/colorbrewer.css">
 	<style>
+		body{
+			margin: 0;
+			font-family: "Myriad Pro";
+		}
 		path{ stroke: #ccc; fill: #eee;}
-		#legend circle{ fill: none;}
+		#legend rect{ stroke: white;}
+		#legend #SYMBOL rect{ stroke: NONE;}
+		#legend text{ fill: white;}
 		.null{ fill: #eee; }
 		#boundary path{ fill: #f7ffff;}
-		#year{ text-align: center; font: 24px 'Helvetica Neue';}
+		#year{ font-size: 72px;}
 		#timeline line{
-			stroke: black;
+			stroke: #999;
 		}
-		#progress{ fill: #ccc; }
+		#progress{ fill: #e5e5e5;}
 		#chart path{ fill: none;}
-		#chart rect{ fill: #7570b3;}
+		path#pop { stroke: none; fill: #7570b3;}
 		path#a15{ stroke: none; fill: #d95f02; }
 		path#a0{ stroke: none; fill: #1b9e77;}
 		#axis line{
 			stroke: rgba(0,0,0,.2);
 		}
 		#axis g.tick line{
-			stroke-dasharray: 5 5;
+			stroke-dasharray: 3 3;
 		}
 		#axis path{ stroke: none;}
-		#axis text{ font-size: 12px;}
+		#axis text{ font-size: 18px;}
 
 		#symbols line{
 			stroke: #333;
 		}
-		
+		header{
+			position: absolute;
+			z-index: 10;
+			top: 0;
+			left: 0;
+			height: 65px;
+			background-color: rgba(0,0,0,.5);
+		}
+		header h1{
+			color: white;
+			line-height: 65px;
+			margin: 0;
+			font-weight: normal;
+			font-size: 40px;
+			padding: 0 25px;
+		}
+		header svg{
+			float: right;
+			margin: 10px;
+		}
 	</style>
 </head>
 <body>
+	<header>
+		<h1>Age distribution: 1960–2013</h1>
+	</header>
 	<script>
 
-var width = 900,
-	height = 500;
+var width = 1000,
+	height = 560;
 
 var svg = d3.select( "body" )
 	.append( "svg" )
 	.attr( "class", "YlGnBu" )
 	.attr( "width", width )
-	.attr( "height", height + 150 );
+	.attr( "height", height );
 
 var boundary = svg.append("g")
 		.attr( "id", "boundary" );
@@ -58,11 +87,13 @@ var chartSymbols = svg.append( "g" )
 var mask = svg.append( "rect" )
 	.attr({
 		x: 0,
-		y: height,
+		y: height-75,
 		width: width,
-		height: 150
+		height: 75
 	})
 	.attr( "fill", "white" );
+
+d3.select( "header" ).style( "width", width + "px" );
 
 var projection = d3.geo.robinson()
     .scale(450)
@@ -82,7 +113,7 @@ var jsonData,
 var age0_14,
 	age15_64,
 	age65_plus,
-	ruralTotal;
+	population;
 
 var minYear = 1960,
 	maxYear = 2013,
@@ -101,9 +132,9 @@ var boundaryFeature = {type:"Feature",geometry:{
 	]]
 }};
 
-var symbolScale = d3.scale.sqrt()
+var symbolScale = d3.scale.linear()
 	.domain( [0,100] )
-	.range( [0,25] );
+	.range( [0,30] );
 
 d3.select( "body" )
 	.append( "p" )
@@ -116,11 +147,13 @@ queue()
 	.defer( d3.csv, "data/csv/age0-14.csv" )
 	.defer( d3.csv, "data/csv/age65-plus.csv" )
 	.defer( d3.csv, "data/csv/age15-64.csv" )
-	.await( function( err, json, a0, a65, a15 ){
+	.defer( d3.csv, "data/csv/population.csv" )
+	.await( function( err, json, a0, a65, a15, pop ){
 		jsonData = json;
 		age0_14 = _.indexBy( a0, "Country Code" );
 		age65_plus = _.indexBy( a65, "Country Code" );
 		age15_64 = _.indexBy( a15, "Country Code" );
+		population = _.indexBy( pop, "Country Code" );
 		createMap();
 	});
 
@@ -170,7 +203,7 @@ function createMap(){
 		.each( createSymbol );
 
 
-	//createLegend();
+	createLegend();
 	createTimeline();
 	createChart();
 
@@ -181,29 +214,46 @@ function createMap(){
 
 function createSymbol(d){
 	if ( !d.properties.data ) return;
-	d3.select(this).append( "rect" )
+	var g = d3.select( this )
+		.append( "g" )
+		.attr( "transform", "translate(-12," + (-symbolScale.range()[1]) + ")" );
+	g.append( "rect" )
 		.attr( "class", "age0_14" )
 		.attr( "x", 2 )
 		.attr( "width", 5 )
 		.attr( "fill", "#1b9e77" )
 		.datum( d.properties.data["age0_14"] );
-	d3.select(this).append( "rect" )
+	g.append( "rect" )
 		.attr( "class", "age15_64" )
 		.attr( "x", 9 )
 		.attr( "width", 5 )
 		.attr( "fill", "#d95f02" )
 		.datum( d.properties.data["age15_64"] );
-	d3.select(this).append( "rect" )
+	g.append( "rect" )
 		.attr( "class", "age65_plus" )
 		.attr( "x", 16 )
 		.attr( "width", 5 )
 		.attr( "fill", "#7570b3" )
 		.datum( d.properties.data["age65_plus"] );
-	d3.select(this).append( "line" )
+	g.append( "line" )
 		.attr( "x1", 0 )
 		.attr( "x2", 23 )
 		.attr( "y1", symbolScale.range()[1] )
 		.attr( "y2", symbolScale.range()[1] );
+	g.append( "line" )
+		.attr( "x1", 0 )
+		.attr( "x2", 23 )
+		.attr( "y1", symbolScale.range()[1] - symbolScale(25) )
+		.attr( "y2", symbolScale.range()[1] - symbolScale(25) )
+		//.style( "stroke-dasharray", "2,2" )
+		.style( "stroke", "#eee" );
+	g.append( "line" )
+		.attr( "x1", 0 )
+		.attr( "x2", 23 )
+		.attr( "y1", symbolScale.range()[1] - symbolScale(50) )
+		.attr( "y2", symbolScale.range()[1] - symbolScale(50) )
+		//.style( "stroke-dasharray", "2,2" )
+		.style( "stroke", "#eee" );
 }
 
 function updateSymbols( fieldName, tween ){
@@ -220,85 +270,183 @@ function updateSymbols( fieldName, tween ){
 			if ( !d ) return 0;
 			return symbolScale.range()[1] - symbolScale( d[fieldName] );
 		});
-	setTimeout( function(){ d3.select( "p" ).text( fieldName ) }, tween ? duration : 0 );
+	setTimeout( function(){ d3.select( "#year" ).text( fieldName ) }, tween ? duration : 0 );
 }
 
 function createLegend(){
 	var sizes = [10000000,50000000,100000000,500000000];
 	var max = symbolScale( sizes[sizes.length-1] );
-	var legend = svg.append( "g" )
+	var legend = d3.select("header")
+		.insert( "svg", "h1" )
+		.attr( "width", 200 )
+		.attr( "height", 60 )
+		.append( "g" )
 		.attr( "id", "legend" )
-		.attr( "transform", "translate(10," + (height-max*2-10) + ")" );
-	legend.append( "rect" )
-		.attr( "fill", "white" )
-		.attr( {
-			x: -20,
-			y: -10,
-			width: max * 2 + 30,
-			height: max * 2 + 20
+	legend
+		.append( "rect" )
+		.attr({
+			x: 5,
+			y: 5,
+			width: 10,
+			height: 10,
+			fill: "#1b9e77"
+		});
+
+	legend
+		.append( "rect" )
+		.attr({
+			x: 5,
+			y: 20,
+			width: 10,
+			height: 10,
+			fill: "#d95f02"
+		});
+
+	legend
+		.append( "rect" )
+		.attr({
+			x: 5,
+			y: 35,
+			width: 10,
+			height: 10,
+			fill: "#7570b3"
+		});
+
+	legend
+		.append( "text" )
+		.text( "0–14" )
+		.attr({
+			x: 20,
+			y:15
+		});
+	legend
+		.append( "text" )
+		.text( "15–64" )
+		.attr({
+			x: 20,
+			y: 30
+		});
+	legend
+		.append( "text" )
+		.text( "65+" )
+		.attr({
+			x: 20,
+			y:45
+		});
+	var symbol = legend.append( "g" )
+		.attr( "id","symbol")
+		.attr( "transform", "translate(90,0)" );
+
+	symbol.append( "rect" )
+		.attr( "class", "age0_14" )
+		.attr( "x", 2 )
+		.attr( "width", 5 )
+		.attr( "fill", "#CCC" )
+		.attr( "height", symbolScale(30))
+		.attr( "y", symbolScale.range()[1] - symbolScale(30) )
+	symbol.append( "rect" )
+		.attr( "class", "age15_64" )
+		.attr( "x", 9 )
+		.attr( "width", 5 )
+		.attr( "fill", "#CCC" )
+		.attr( "height", symbolScale(60))
+		.attr( "y", symbolScale.range()[1] - symbolScale(60) )
+	symbol.append( "rect" )
+		.attr( "class", "age65_plus" )
+		.attr( "x", 16 )
+		.attr( "width", 5 )
+		.attr( "fill", "#CCC" )
+		.attr( "height", symbolScale(10))
+		.attr( "y", symbolScale.range()[1] - symbolScale(10) )
+	symbol.append( "line" )
+		.attr( "x1", 0 )
+		.attr( "x2", 23 )
+		.attr( "y1", symbolScale.range()[1] )
+		.attr( "y2", symbolScale.range()[1] )
+		.style( "stroke", "#fff" );
+	symbol.append( "line" )
+		.attr( "x1", 0 )
+		.attr( "x2", 23 )
+		.attr( "y1", symbolScale.range()[1] - symbolScale(25) )
+		.attr( "y2", symbolScale.range()[1] - symbolScale(25) )
+		//.style( "stroke-dasharray", "2,2" )
+		.style( "stroke", "#fff" );
+	symbol.append( "line" )
+		.attr( "x1", 0 )
+		.attr( "x2", 23 )
+		.attr( "y1", symbolScale.range()[1] - symbolScale(50) )
+		.attr( "y2", symbolScale.range()[1] - symbolScale(50) )
+		//.style( "stroke-dasharray", "2,2" )
+		.style( "stroke", "#fff" );
+	symbol.append( "text" ).text( "50%" )
+		.attr({
+			x: 25,
+			y:symbolScale.range()[1] - symbolScale(50),
+			"dominant-baseline": "middle"
 		})
-	for ( var i in sizes ){
-		legend.append( "circle" )
-			.attr( "cx", max )
-			.attr( "cy", max )
-			.attr( "r", symbolScale( sizes[i] ) )
-	}
-	legend.append( "rect" )
-		.attr( "fill", "white" )
-		.attr( {
-			x: max,
-			y: -5,
-			width: max + 5,
-			height: max * 2 + 10
+		.style("font-size","10px")
+		symbol.append( "text" ).text( "25%" )
+		.attr({
+			x: 25,
+			y:symbolScale.range()[1] - symbolScale(25),
+			"dominant-baseline": "middle"
 		})
-	for ( var i in sizes ){
-		legend.append( "text" )
-			.text( sizes[i]/1000000 + " million" )
-			.attr( "font-size", 12 )
-			.attr( "dominant-baseline", "middle" )
-			.attr( "x", max + 5)
-			.attr( "y", max - symbolScale( sizes[i] ) )
-	}
+		.style("font-size","10px")
 }
 
 function createTimeline(){
 	var timeline = svg.append("g")
 		.attr( "id", "timeline" )
-		.attr( "transform", "translate(15," + (height+120) + ")" );
+		.attr( "transform", "translate(180," + (height-75) + ")" );
+	timeline.append( "rect" )
+		.attr( "x", -180 )
+		.attr( "y", -30 )
+		.attr( "height", 30)
+		.attr( "width", width)
+		.attr( "fill", "white" )
+		.attr( "opacity", .75 )
 	timeline.append( "rect" )
 		.attr( "id", "progress" )
 		.attr( "x", 0 )
 		.attr( "y", 0 )
-		.attr( "height", 10);
+		.attr( "height", 75);
 	timeline.append( "line" )
 		.attr({
-			x1: 0,
+			x1: -180,
 			y1: 0,
-			x2: width-60,
+			x2: width,
 			y2: 0
 		});
-	var yearWidth = (width-60)/(maxYear-minYear);
+	var yearWidth = (width-230)/(maxYear-minYear);
 	for ( var year = minYear; year <= maxYear; year++ ){
-		var bigTick = year == minYear || year == maxYear || year % 5 == 0,
+		var bigTick = year == minYear || year == maxYear || year % 10 == 0,
 			x = (year-minYear)*yearWidth;
+		if ( !bigTick ) continue;
 		timeline.append( "line" )
 			.attr("x1", x )
 			.attr("y1", 0 )
 			.attr("x2", x )
-			.attr("y2", bigTick ? 10 : 5 );
-		if ( bigTick ){
+			.attr("y2", bigTick ? 75 : 5 );
+		if ( bigTick && 
+			( Math.abs( year-minYear ) > 3 && Math.abs( maxYear - year ) > 3 || year == minYear || year == maxYear )  ){
 			timeline.append( "text" )
 				.attr("x",x)
-				.attr("y",20)
+				.attr("y",-5)
 				.attr("text-anchor","middle")
-				.attr("font-size",12)
+				.attr("font-size",24)
 				.text(year)
 		}
 	}
+
+	timeline.append( "text" )
+		.attr( "id", "year" )
+		.attr( "x", -170 )
+		.attr( "y", 45 )
+		.attr( "dominant-baseline", "middle")
 }
 
 function updateTimeline( tween ){
-	var yearWidth = (width-60)/(maxYear-minYear);
+	var yearWidth = (width-230)/(maxYear-minYear);
 	d3.select( "#progress" )
 		.transition()
 		.duration( tween ? duration : 0 )
@@ -309,19 +457,28 @@ function updateTimeline( tween ){
 function createChart(){
 	svg.append( "g" )
 		.attr( "id", "chart" )
-		.attr( "transform", "translate(15," + (height+40) + ")" );
+		.attr( "transform", "translate(180," + (height-75) + ")" );
 	drawChart( "JPN" );
 }
 
 function drawChart( id ){
 	var a0 = age0_14[ id ];
 	var a15 = age15_64[ id ];
+	var pop = population[ id ];
+	var min = Infinity,
+		max = -Infinity;
+	for ( var year = minYear; year <= maxYear; year++ ){
+		min = Math.min( min, parseInt(pop[year]) );
+		max = Math.max( max, parseInt(pop[year]) );
+	}
+	max *= 1.05;
 	var chartScale = d3.scale.linear()
-		.domain( [0,100] )
+		.domain( [0,max] )
 		.range( [75,0] );
-	var yearWidth = (width-60)/(maxYear-minYear);
+	var yearWidth = (width-230)/(maxYear-minYear);
 	var d0 = "",
-		d15 = "";
+		d15 = "",
+		dTotal = "";
 	d3.selectAll( "#chart path" ).remove();
 	d3.select( "#chart rect" ).remove();
 	d3.select( "#chart g" ).remove();
@@ -331,21 +488,20 @@ function drawChart( id ){
 		} else {
 			command = "L";
 		}
-		var val0 = parseFloat( a0[year] ),
-			val15 = parseFloat( a15[year] ) + val0;
-		d0 += command + Math.round( (year-minYear)*yearWidth ) + " " + chartScale( val0 );
-		d15 += command + Math.round( (year-minYear)*yearWidth ) + " " + chartScale( val15 );
+		var val0 = pop[year] * parseFloat( a0[year] )/100,
+			val15 = pop[year] * parseFloat( a15[year] )/100 + val0;
+		d0 += command + Math.round( (year-minYear)*yearWidth ) + " " + chartScale(val0);
+		d15 += command + Math.round( (year-minYear)*yearWidth ) + " " + chartScale(val15);
+		dTotal += command + Math.round( (year-minYear)*yearWidth ) + " " + chartScale( pop[year] );
 	}
 	d0 += "V" + chartScale.range()[0] + "H0Z";
 	d15 += "V" + chartScale.range()[0] + "H0Z";
+	dTotal += "V" + chartScale.range()[0] + "H0Z";
+
 	d3.select( "#chart" )
-		.append( "rect" )
-		.attr({
-			x: 0,
-			y: 0,
-			width: width-60,
-			height: chartScale.range()[0]
-		});
+		.append( "path" )
+		.attr( "id", "pop" )
+		.attr( "d", dTotal )
 	d3.select( "#chart" )
 		.append( "path" )
 		.attr( "id", "a15" )
@@ -357,17 +513,21 @@ function drawChart( id ){
 	var axis = d3.svg.axis()
 		.scale( chartScale )
 		.orient( "right" )
-		.ticks(4)
-		.innerTickSize( (width-60) )
-		.outerTickSize( (width-60) )
+		.ticks(3)
+		.innerTickSize( (width-230) )
+		.outerTickSize( (width-230) )
 		.tickFormat( function(d){
-			return d + "%"
+			if ( d >= 1000000000 ) return d/1000000000 + "b";
+			if ( d == 0 ) return "";
+			return d/1000000 + "m"
 		})
 
 	d3.select( "#chart" )
 		.append( "g" )
 		.attr( "id", "axis" )
-		.call( axis )
+		.call( axis );
+
+	
 }
 
 function play(){
@@ -381,7 +541,10 @@ function nextFrame(){
 	updateSymbols( currentYear, currentYear != minYear );
 	updateTimeline( currentYear != minYear );
 	currentYear++;
-	if ( currentYear > maxYear ) currentYear = minYear-1;
+	if ( currentYear > maxYear ){
+		currentYear = minYear-1;
+		pause();
+	} 
 }
 function pause(){
 	clearInterval(animationInterval);

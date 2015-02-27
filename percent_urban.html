@@ -1,43 +1,79 @@
 <html>
 <head>
+	<meta charset="utf-8">
 	<script src="lib/d3.v3.min.js"></script>
 	<script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
 	<script src="http://d3js.org/queue.v1.min.js"></script>
 	<script src="lib/underscore-min.js"></script>
 	<link rel="stylesheet" href="lib/colorbrewer.css">
 	<style>
+		body{
+			margin: 0;
+			font-family: "Unit-Regular";
+			color: white;
+		}
 		path{ stroke: #ccc;}
 		.null{ fill: #eee; }
-		#boundary path{ fill: #f7ffff;}
-		#year{ text-align: center; font: 24px 'Helvetica Neue';}
+		#boundary path{ fill: #fff; stroke: none;}
+		#year{ font-size: 72px;}
 		#timeline line{
-			stroke: black;
+			stroke: #999;
 		}
-		#progress{ fill: #ccc; }
+		#progress{ fill: rgba(0,0,0,.25); }
 		#chart path{ fill: none;}
-		path#urban{ stroke: #f00; }
-		path#rural{ stroke: #00f;}
+		#chart path.urban, line.urban{ stroke: none; fill: #933; }
+		rect.rural, line.rural{ stroke: none; fill: #666;}
 		#axis line{
-			stroke: rgba(0,0,0,.2);
+			stroke: rgba(255,255,255,.2);
 		}
 		#axis g.tick line{
-			stroke-dasharray: 5 5;
+			stroke-dasharray: 3 3;
 		}
 		#axis path{ stroke: none;}
-		#axis text{ font-size: 12px;}
+		#axis text{ font-size: 18px;}
+		#chart-title{ font-size: 18px; }
+		header{
+			position: absolute;
+			z-index: 10;
+			top: 0;
+			left: 0;
+			height: 65px;
+			background-color: rgba(0,0,0,.5);
+		}
+		header h1{
+			color: white;
+			line-height: 65px;
+			margin: 0;
+			font-weight: normal;
+			font-size: 40px;
+			padding: 0 25px;
+		}
+		header svg{
+			float: right;
+			margin: 10px 15px 0 0;
+		}
+		header img{
+			float: right;
+			margin: 10px;
+		}
+		#chart text, #timeline text{ fill: white;}
 	</style>
 </head>
 <body>
+	<header>
+		<img src="logo.png"/>
+		<h1>Percent Urban Population: 1960–2013</h1>
+	</header>
 	<script>
 
-var width = 900,
-	height = 500;
+var width = 1000,
+	height = 560;
 
 var svg = d3.select( "body" )
 	.append( "svg" )
 	.attr( "class", "YlGnBu" )
 	.attr( "width", width )
-	.attr( "height", height + 150 );
+	.attr( "height", height );
 
 var boundary = svg.append("g")
 		.attr( "id", "boundary" );
@@ -48,16 +84,19 @@ var countries = svg.append( "g" )
 var mask = svg.append( "rect" )
 	.attr({
 		x: 0,
-		y: height,
+		y: height-105,
 		width: width,
-		height: 150
+		height: 105
 	})
-	.attr( "fill", "white" );
+	.attr( "fill", "rgba(0,0,0,.5)" );
 
-var projection = d3.geo.robinson()
-    .scale(450)
-    .center([0,27])
-    .rotate([-100,0] )
+d3.select( "header" ).style( "width", width + "px" );
+
+
+var projection = d3.geo.times()
+	.center([0,5])
+	.rotate( [-25,0])
+    .scale(250)
     .translate([width / 2, height / 2])
     .precision(.1);
 
@@ -65,17 +104,16 @@ var path = d3.geo.path()
 	.projection( projection );
 
 var classification = d3.scale.linear()
-    .domain([10, 20, 30, 40, 50, 60, 70, 80, 90])
+    .domain([20, 30, 40, 50, 60, 70, 80, 90])
     .range([
-		"#ffffd9",
-		"#edf8b1",
-		"#c7e9b4",
-		"#7fcdbb",
-		"#41b6c4",
-		"#1d91c0",
-		"#225ea8",
-		"#253494",
-		"#081d58"
+		"#fff5f0",
+		"#fee0d2",
+		"#fcbba1",
+		"#fc9272",
+		"#fb6a4a",
+		"#ef3b2c",
+		"#cb181d",
+		"#a50f15"
 	]);
 
 var duration = 100;
@@ -103,20 +141,16 @@ var boundaryFeature = {type:"Feature",geometry:{
 	]]
 }};
 
-d3.select( "body" )
-	.append( "p" )
-	.style( "width", width + "px" )
-	.attr( "id", "year" );
-
-
 queue()
-	.defer( d3.json, "data/json/countries.json" )
+	.defer( d3.json, "data/json/admin0.geojson" )
+	.defer( d3.json, "data/json/disputed.geojson" )
 	.defer( d3.csv, "data/csv/percent_urban.csv" )
 	.defer( d3.csv, "data/csv/urban_total.csv" )
 	.defer( d3.csv, "data/csv/rural_total.csv" )
-	.await( function( err, json, csv, urban, rural ){
+	.await( function( err, json, disp, csv, urban, rural ){
 		jsonData = json;
-		csvData = csv;
+		jsonData.features = jsonData.features.concat( disp.features );
+		csvData = _.indexBy( csv, "Country Code" );
 		urbanTotal = _.indexBy( urban, "Country Code" );
 		ruralTotal = _.indexBy( rural, "Country Code" );
 		createMap();
@@ -124,10 +158,11 @@ queue()
 
 function createMap(){
 	_.each( csvData, function(row){
-		var feature = _.find( jsonData.features, function(f){
-			return f.properties.adm0_a3 == row["Country Code"];
+		_.each( jsonData.features, function(f){
+			if ( f.properties.code == row["Country Code"] ){
+				f.properties.data = row;
+			}
 		});
-		if ( feature ) feature.properties.data = row;
 	});
 
 	boundary
@@ -139,12 +174,13 @@ function createMap(){
 		.data( jsonData.features )
 		.enter()
 		.append( "path" )
-		.attr( "id", function(d){ return d.properties.adm0_a3 })
+		.attr( "id", function(d){ return d.properties.ISO_A2 })
 		.attr( "d", path );
 
 	createLegend();
-	createTimeline();
 	createChart();
+	createTimeline();
+	
 
 	nextFrame();
 	play();
@@ -161,61 +197,89 @@ function updateChoropleth( fieldName, tween ){
 			if ( !d.properties.data ) return "#eee"
 			return classification( d.properties.data[fieldName] ) 
 		});
-	setTimeout( function(){ d3.select( "p" ).text( fieldName ) }, tween ? duration : 0 );
+	setTimeout( function(){ d3.select( "#year" ).text( fieldName ) }, tween ? duration : 0 );
 }
 
 function createLegend(){
-	var legend = svg.append( "g" )
-		.attr( "id", "legend" )
-		.attr( "transform", "translate(10," + (height+10) + ")" );
+	var legend = d3.select( "header" )
+		.append( "svg"  )
+		.attr( "width", 75)
+		.attr( "height", 75)
+		.append( "g" );
+	var gradient = legend.append( "defs" )
+		.append( "linearGradient" )
+		.attr({
+			id: "grad",
+			x1: "0%",
+			y1: "0%",
+			x2: "100%",
+			y2: "0%"
+		});
+	var len = classification.range().length - 1;
 	classification.range().forEach( function(r,i){
-		legend.append( "rect" )
-			.attr("x",i*20)
-			.attr("y",0)
-			.attr("width",20)
-			.attr("height",20)
-			.attr("fill",r)
+		gradient.append( "stop" )
+			.attr( "offset", i * 100/len + "%")
+			.style( "stop-color", r )
+			.style( "stop-opacity", 1 );
 	});
+
+	legend.append( "rect" )
+		.attr({
+			width: 70,
+			height: 30,
+			x: 5,
+			y: 0,
+			fill: "url(#grad)",
+			stroke: "#999"
+		});
+	legend.append( "text" )
+		.text( "0 – 100%" )
+		.attr( "fill", "#333" )
+		.attr( "text-anchor", "middle")
+		.attr( "x", 35 )
+		.attr( "y", 50 );
 }
 
 function createTimeline(){
 	var timeline = svg.append("g")
 		.attr( "id", "timeline" )
-		.attr( "transform", "translate(15," + (height+120) + ")" );
+		.attr( "transform", "translate(180," + (height-75) + ")" );
 	timeline.append( "rect" )
 		.attr( "id", "progress" )
 		.attr( "x", 0 )
 		.attr( "y", 0 )
-		.attr( "height", 10);
-	timeline.append( "line" )
-		.attr({
-			x1: 0,
-			y1: 0,
-			x2: width-60,
-			y2: 0
-		});
-	var yearWidth = (width-60)/(maxYear-minYear);
+		.attr( "height", 75);
+	
+	var yearWidth = (width-230)/(maxYear-minYear);
 	for ( var year = minYear; year <= maxYear; year++ ){
-		var bigTick = year == minYear || year == maxYear || year % 5 == 0,
+		var bigTick = year == minYear || year == maxYear || year % 10 == 0,
 			x = (year-minYear)*yearWidth;
+		if ( !bigTick ) continue;
 		timeline.append( "line" )
 			.attr("x1", x )
 			.attr("y1", 0 )
 			.attr("x2", x )
-			.attr("y2", bigTick ? 10 : 5 );
-		if ( bigTick ){
+			.attr("y2", bigTick ? 75 : 5 );
+		if ( bigTick && 
+			( Math.abs( year-minYear ) > 3 && Math.abs( maxYear - year ) > 3 || year == maxYear )  ){
 			timeline.append( "text" )
 				.attr("x",x)
-				.attr("y",20)
+				.attr("y",-5)
 				.attr("text-anchor","middle")
-				.attr("font-size",12)
+				.attr("font-size",24)
 				.text(year)
 		}
 	}
+
+	timeline.append( "text" )
+		.attr( "id", "year" )
+		.attr( "x", -170 )
+		.attr( "y", 45 )
+		.attr( "dominant-baseline", "middle")
 }
 
 function updateTimeline( tween ){
-	var yearWidth = (width-60)/(maxYear-minYear);
+	var yearWidth = (width-230)/(maxYear-minYear);
 	d3.select( "#progress" )
 		.transition()
 		.duration( tween ? duration : 0 )
@@ -226,71 +290,111 @@ function updateTimeline( tween ){
 function createChart(){
 	svg.append( "g" )
 		.attr( "id", "chart" )
-		.attr( "transform", "translate(15," + (height+40) + ")" );
-	drawChart( "MYS" );
+		.attr( "transform", "translate(180," + (height-75) + ")" );
+	drawChart( "WLD" );
 }
 
 function drawChart( id ){
-	var urban = urbanTotal[ id ];
-	var rural = ruralTotal[ id ];
-	var min = Infinity,
-		max = -Infinity;
-	for ( var year=minYear; year<=maxYear; year++ ){
-		if ( parseInt( urban[year] ) < min ) min = parseInt( urban[year] );
-		if ( parseInt( urban[year] ) > max ) max = parseInt( urban[year] );
-		if ( parseInt( rural[year] ) < min ) min = parseInt( rural[year] );
-		if ( parseInt( rural[year] ) > max ) max = parseInt( rural[year] );
-	}
+	var urban = csvData[ id ];
+	
 	var chartScale = d3.scale.linear()
-		.domain( [min,max] )
+		.domain( [0,100] )
 		.range( [75,0] );
-	var yearWidth = (width-60)/(maxYear-minYear);
-	var d1 = "",
-		d2 = "";
+	var yearWidth = (width-230)/(maxYear-minYear);
+	var d = "";
 	d3.selectAll( "#chart path" ).remove();
+	d3.selectAll( "#chart rect" ).remove();
 	d3.select( "#chart g" ).remove();
+	d3.select( "#chart-title" ).remove();
 	for ( year=minYear; year<=maxYear; year++ ){
-		var command1, command2;
+		console.log(chartScale( urban[year]))
+		var command;
 		if ( year == minYear ){
-			command1 = "M";
-			command2 = "M";
+			command = "M";
 		} else {
-			if ( isNaN(urban[year]) || urban[year] === "" )
-				command1 = "none";
-			else
-				command1 = "L";
-			if ( isNaN(rural[year]) || rural[year] === "" )
-				command2 = "none";
-			else
-				command2 = "L";
+				command = "L";
 		}
-		if ( command1 != "none" ) d1 += command1 + Math.round( (year-minYear)*yearWidth ) + " " + chartScale( urban[year] );
-		if ( command2 != "none" ) d2 += command2 + Math.round( (year-minYear)*yearWidth ) + " " + chartScale( rural[year] );
+		d += command + Math.round( (year-minYear)*yearWidth ) + " " + chartScale( urban[year] );
 	}
+	d += "V" + chartScale.range()[0] + "H0Z";
+
+	d3.select( "#chart" )
+		.append( "rect" )
+		.attr( "class", "rural" )
+		.attr({
+			x: 0,
+			y: 0,
+			width: width-230,
+			height: chartScale.range()[0]
+		});
+
 	d3.select( "#chart" )
 		.append( "path" )
-		.attr( "id", "urban" )
-		.attr( "d", d1 )
-	d3.select( "#chart" )
-		.append( "path" )
-		.attr( "id", "rural" )
-		.attr( "d", d2 )
+		.attr( "class", "urban" )
+		.attr( "d", d )
+	
 
 	var axis = d3.svg.axis()
 		.scale( chartScale )
 		.orient( "right" )
-		.ticks(4)
-		.innerTickSize( (width-60) )
-		.outerTickSize( (width-60) )
+		.ticks(3)
+		.innerTickSize( (width-230) )
+		.outerTickSize( (width-230) )
 		.tickFormat( function(d){
-			return d/1000000 + "m"
-		})
+			if ( d==0 ) return "";
+			return d + "%"
+		});
 
 	d3.select( "#chart" )
 		.append( "g" )
 		.attr( "id", "axis" )
-		.call( axis )
+		.call( axis );
 
+	d3.selectAll( ".tick text" ).attr( "dy", 10 );
+
+	d3.select( "#chart" )
+		.append( "line" )
+		.attr({
+			x1: 0,
+			y1: 15,
+			x2: 15,
+			y2: 0,
+			transform: "translate( -25,-25 )",
+			class: "urban"
+		});
+	d3.select( "#chart" )
+	// 	.append( "text" )
+	// 	.text( "urban" )
+	// 	.attr({
+	// 		x: -5,
+	// 		y: -10
+	// 	});
+
+	// d3.select( "#chart" )
+	// 	.append( "line" )
+	// 	.attr({
+	// 		x1: 0,
+	// 		y1: 15,
+	// 		x2: 15,
+	// 		y2: 0,
+	// 		transform: "translate( 50,-25 )",
+	// 		class: "rural"
+	// 	});
+
+	// d3.select( "#chart" )
+	// 	.append( "text" )
+	// 	.text( "rural" )
+	// 	.attr({
+	// 		x: 70,
+	// 		y: -10
+	// 	});
+
+	d3.select( "#chart" )
+		.append( "text" )
+		.attr( "id", "chart-title" )
+		.attr( "x", -175 )
+		.attr( "y", -10 )
+		.text( urban["Country Name"] + " Urban Population" );
 }
 
 function play(){
@@ -304,7 +408,10 @@ function nextFrame(){
 	updateChoropleth( currentYear, currentYear != minYear );
 	updateTimeline( currentYear != minYear );
 	currentYear++;
-	if ( currentYear > maxYear ) currentYear = minYear-1;
+	if ( currentYear > maxYear ){
+		currentYear = minYear-1;
+		pause();
+	} 
 }
 function pause(){
 	clearInterval(animationInterval);
