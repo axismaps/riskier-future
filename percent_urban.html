@@ -21,7 +21,7 @@
 		}
 		#progress{ fill: rgba(0,0,0,.25); }
 		#chart path{ fill: none;}
-		#chart path.urban, line.urban{ stroke: none; fill: #a50f15; }
+		#chart path.urban, line.urban{ stroke: none; fill: #ce1b1e; }
 		rect.rural, line.rural{ stroke: none; fill: #666;}
 		#axis line{
 			stroke: rgba(255,255,255,.2);
@@ -395,6 +395,16 @@ function drawChart( id ){
 		.attr( "x", -175 )
 		.attr( "y", -10 )
 		.text( urban["Country Name"] + " Urban Population" );
+
+	// d3.select( "#chart" )
+	// 	.append( "line" )
+	// 	.attr({
+	// 		x1: (2007-minYear) * yearWidth,
+	// 		x2: (2007-minYear) * yearWidth,
+	// 		y1: chartScale(50),
+	// 		y2: -110
+	// 	})
+	// 	.attr( "stroke", "black" )
 	
 	d3.select( "#chart" )
 		.append( "rect" )
@@ -409,8 +419,7 @@ function drawChart( id ){
 	 	.append( "path" )
 	 	.attr( "d","M" + ((2007-minYear) * yearWidth) + "," + chartScale(50) + "L" + ((2007-minYear) * yearWidth-9) + ",-45h18Z" )
 	 	.style( "fill", "rgba(0,0,0,.75)")
-	 	.style( "stroke","none");
-
+	 	.style( "stroke","none")
 	var flag = d3.select("#chart")
 		.append( "text" )
 		.attr({
