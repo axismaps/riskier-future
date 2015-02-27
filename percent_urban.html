@@ -19,10 +19,10 @@
 		#timeline line{
 			stroke: #999;
 		}
-		#progress{ fill: rgba(0,0,0,.5); }
+		#progress{ fill: rgba(0,0,0,.25); }
 		#chart path{ fill: none;}
-		path.urban, line.urban{ stroke: #fff; stroke-width: 3; }
-		path.rural, line.rural{ stroke: #fff; stroke-width: 3; stroke-dasharray: 10,3;}
+		#chart path.urban, line.urban{ stroke: none; fill: #933; }
+		rect.rural, line.rural{ stroke: none; fill: #666;}
 		#axis line{
 			stroke: rgba(255,255,255,.2);
 		}
@@ -79,9 +79,9 @@ var countries = svg.append( "g" )
 var mask = svg.append( "rect" )
 	.attr({
 		x: 0,
-		y: height-75,
+		y: height-105,
 		width: width,
-		height: 75
+		height: 105
 	})
 	.attr( "fill", "rgba(0,0,0,.5)" );
 
@@ -145,7 +145,7 @@ queue()
 	.await( function( err, json, disp, csv, urban, rural ){
 		jsonData = json;
 		jsonData.features = jsonData.features.concat( disp.features );
-		csvData = csv;
+		csvData = _.indexBy( csv, "Country Code" );
 		urbanTotal = _.indexBy( urban, "Country Code" );
 		ruralTotal = _.indexBy( rural, "Country Code" );
 		createMap();
@@ -173,8 +173,9 @@ function createMap(){
 		.attr( "d", path );
 
 	createLegend();
-	createTimeline();
 	createChart();
+	createTimeline();
+	
 
 	nextFrame();
 	play();
@@ -238,12 +239,6 @@ function createTimeline(){
 		.attr( "id", "timeline" )
 		.attr( "transform", "translate(180," + (height-75) + ")" );
 	timeline.append( "rect" )
-		.attr( "x", -180 )
-		.attr( "y", -30 )
-		.attr( "height", 30)
-		.attr( "width", width)
-		.attr( "fill", "rgba(0,0,0,.5)" )
-	timeline.append( "rect" )
 		.attr( "id", "progress" )
 		.attr( "x", 0 )
 		.attr( "y", 0 )
@@ -294,53 +289,44 @@ function createChart(){
 }
 
 function drawChart( id ){
-	var urban = urbanTotal[ id ];
-	var rural = ruralTotal[ id ];
-	var min = Infinity,
-		max = -Infinity;
-	for ( var year=minYear; year<=maxYear; year++ ){
-		if ( parseInt( urban[year] ) < min ) min = parseInt( urban[year] );
-		if ( parseInt( urban[year] ) > max ) max = parseInt( urban[year] );
-		if ( parseInt( rural[year] ) < min ) min = parseInt( rural[year] );
-		if ( parseInt( rural[year] ) > max ) max = parseInt( rural[year] );
-	}
-	min = Math.max( 0, min-(max-min)*.05 );
-	max = max + (max-min)*.05;
+	var urban = csvData[ id ];
+	
 	var chartScale = d3.scale.linear()
-		.domain( [min,max] )
+		.domain( [0,100] )
 		.range( [75,0] );
 	var yearWidth = (width-230)/(maxYear-minYear);
-	var d1 = "",
-		d2 = "";
+	var d = "";
 	d3.selectAll( "#chart path" ).remove();
+	d3.selectAll( "#chart rect" ).remove();
 	d3.select( "#chart g" ).remove();
 	d3.select( "#chart-title" ).remove();
 	for ( year=minYear; year<=maxYear; year++ ){
-		var command1, command2;
+		console.log(chartScale( urban[year]))
+		var command;
 		if ( year == minYear ){
-			command1 = "M";
-			command2 = "M";
+			command = "M";
 		} else {
-			if ( isNaN(urban[year]) || urban[year] === "" )
-				command1 = "none";
-			else
-				command1 = "L";
-			if ( isNaN(rural[year]) || rural[year] === "" )
-				command2 = "none";
-			else
-				command2 = "L";
+				command = "L";
 		}
-		if ( command1 != "none" ) d1 += command1 + Math.round( (year-minYear)*yearWidth ) + " " + chartScale( urban[year] );
-		if ( command2 != "none" ) d2 += command2 + Math.round( (year-minYear)*yearWidth ) + " " + chartScale( rural[year] );
+		d += command + Math.round( (year-minYear)*yearWidth ) + " " + chartScale( urban[year] );
 	}
+	d += "V" + chartScale.range()[0] + "H0Z";
+
+	d3.select( "#chart" )
+		.append( "rect" )
+		.attr( "class", "rural" )
+		.attr({
+			x: 0,
+			y: 0,
+			width: width-230,
+			height: chartScale.range()[0]
+		});
+
 	d3.select( "#chart" )
 		.append( "path" )
 		.attr( "class", "urban" )
-		.attr( "d", d1 )
-	d3.select( "#chart" )
-		.append( "path" )
-		.attr( "class", "rural" )
-		.attr( "d", d2 )
+		.attr( "d", d )
+	
 
 	var axis = d3.svg.axis()
 		.scale( chartScale )
@@ -349,8 +335,8 @@ function drawChart( id ){
 		.innerTickSize( (width-230) )
 		.outerTickSize( (width-230) )
 		.tickFormat( function(d){
-			if ( d >= 1000000000 ) return d / 1000000000 + "bn"
-			return d/1000000 + "m"
+			if ( d==0 ) return "";
+			return d + "%"
 		});
 
 	d3.select( "#chart" )
@@ -358,7 +344,7 @@ function drawChart( id ){
 		.attr( "id", "axis" )
 		.call( axis );
 
-	d3.selectAll( ".tick text" ).attr( "dy", 0 );
+	d3.selectAll( ".tick text" ).attr( "dy", 10 );
 
 	d3.select( "#chart" )
 		.append( "line" )
@@ -371,38 +357,38 @@ function drawChart( id ){
 			class: "urban"
 		});
 	d3.select( "#chart" )
-		.append( "text" )
-		.text( "urban" )
-		.attr({
-			x: -5,
-			y: -10
-		});
+	// 	.append( "text" )
+	// 	.text( "urban" )
+	// 	.attr({
+	// 		x: -5,
+	// 		y: -10
+	// 	});
 
-	d3.select( "#chart" )
-		.append( "line" )
-		.attr({
-			x1: 0,
-			y1: 15,
-			x2: 15,
-			y2: 0,
-			transform: "translate( 50,-25 )",
-			class: "rural"
-		});
+	// d3.select( "#chart" )
+	// 	.append( "line" )
+	// 	.attr({
+	// 		x1: 0,
+	// 		y1: 15,
+	// 		x2: 15,
+	// 		y2: 0,
+	// 		transform: "translate( 50,-25 )",
+	// 		class: "rural"
+	// 	});
 
-	d3.select( "#chart" )
-		.append( "text" )
-		.text( "rural" )
-		.attr({
-			x: 70,
-			y: -10
-		});
+	// d3.select( "#chart" )
+	// 	.append( "text" )
+	// 	.text( "rural" )
+	// 	.attr({
+	// 		x: 70,
+	// 		y: -10
+	// 	});
 
 	d3.select( "#chart" )
 		.append( "text" )
 		.attr( "id", "chart-title" )
 		.attr( "x", -175 )
 		.attr( "y", -10 )
-		.text( urban["Country Name"] + " Population" );
+		.text( urban["Country Name"] + " Urban Population" );
 }
 
 function play(){
