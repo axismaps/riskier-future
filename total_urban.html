@@ -224,6 +224,16 @@ function updateSymbols( fieldName, tween ){
 				//.duration( tween ? duration : 0  )
 				.attr( "d",arc )
 		})
+		.sort(function(a,b){
+	      try{
+		      var aVal = parseInt(urbanTotal[ a.properties.code ][fieldName]) + parseInt(ruralTotal[ a.properties.code ][fieldName]);
+			  var bVal = parseInt(urbanTotal[ b.properties.code ][fieldName]) + parseInt(ruralTotal[ b.properties.code ][fieldName]); 
+	      }
+	      catch( e ) {
+		      return 0;
+	      }
+	      return  bVal - aVal;
+	    })
 		// .datum( [ urbanTotal[ d.properties.code ][fieldName], ruralTotal[ d.properties.code ][fieldName] ] )
 		// .selectAll("path")
 		// .data(pie)
