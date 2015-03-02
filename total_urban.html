@@ -132,9 +132,9 @@ var boundaryFeature = {type:"Feature",geometry:{
 
 d3.select( "header" ).style( "width", width + "px" );
 
-var symbolScale = d3.scale.linear()
+var symbolScale = d3.scale.sqrt()
 	.domain( [1000000,1000000000] )
-	.range( [3,50] );
+	.range( [3,40] );
 
 d3.select( "body" )
 	.append( "p" )
