@@ -9,7 +9,7 @@
 	<style>
 		body{
 			margin: 0;
-			font-family: "Unit-Regular";
+			font-family: "Unit-Medium";
 			color: white;
 		}
 		path{ stroke: #ccc;}
@@ -116,7 +116,7 @@ var classification = d3.scale.linear()
 		"#a50f15"
 	]);
 
-var duration = 100;
+var duration = 150;
 
 var jsonData,
 	csvData;
@@ -307,7 +307,7 @@ function drawChart( id ){
 	d3.select( "#chart g" ).remove();
 	d3.select( "#chart-title" ).remove();
 	for ( year=minYear; year<=maxYear; year++ ){
-		console.log(chartScale( urban[year]))
+		//console.log(chartScale( urban[year]))
 		var command;
 		if ( year == minYear ){
 			command = "M";
@@ -394,7 +394,14 @@ function drawChart( id ){
 		.attr( "id", "chart-title" )
 		.attr( "x", -175 )
 		.attr( "y", -10 )
-		.text( urban["Country Name"] + " Urban Population" );
+		.text( urban["Country Name"] + " Urban Population" );		
+}
+
+function showFlag(){
+	var chartScale = d3.scale.linear()
+		.domain( [0,100] )
+		.range( [75,0] );
+	var yearWidth = (width-230)/(maxYear-minYear);
 
 	d3.select( "#chart" )
 		.append( "line" )
@@ -405,6 +412,7 @@ function drawChart( id ){
 			y2: -130
 		})
 		.attr( "stroke", "black" )
+		.attr( "class", "flag" )
 	
 	d3.select( "#chart" )
 		.append( "rect" )
@@ -415,17 +423,15 @@ function drawChart( id ){
 			height: 85,
 			fill: "rgba(0,0,0,.75)"
 		})
-	// d3.select( "#chart" )
-	//  	.append( "path" )
-	//  	.attr( "d","M" + ((2007-minYear) * yearWidth) + "," + chartScale(50) + "L" + ((2007-minYear) * yearWidth-9) + ",-45h18Z" )
-	//  	.style( "fill", "rgba(0,0,0,.75)")
-	//  	.style( "stroke","none")
+		.attr( "class", "flag" )
+
 	var flag = d3.select("#chart")
 		.append( "text" )
 		.attr({
 			x: (2007-minYear) * yearWidth + 5,
 			y: -109
 		})
+		.attr( "class", "flag" )
 	flag.append( "tspan" )
 		.text( "2007" )
 		.attr( "font-size", "1.4em")
@@ -445,7 +451,10 @@ function drawChart( id ){
 		.attr( "dy", 16)
 		.attr("x",(2007-minYear) * yearWidth + 5)
 		.attr( "font-size", "14px")
-		
+}
+
+function hideFlag(){
+	d3.selectAll( ".flag" ).remove();
 }
 
 function play(){
@@ -458,11 +467,18 @@ function nextFrame(){
 	}
 	updateChoropleth( currentYear, currentYear != minYear );
 	updateTimeline( currentYear != minYear );
+	if ( currentYear == 2007 ){
+		pause();
+		setTimeout( showFlag, duration );
+		setTimeout( play, duration + 2000 );
+	} else {
+		hideFlag();
+	}
 	currentYear++;
 	if ( currentYear > maxYear ){
 		currentYear = minYear-1;
 		pause();
-	} 
+	}
 }
 function pause(){
 	clearInterval(animationInterval);

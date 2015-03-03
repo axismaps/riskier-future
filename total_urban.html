@@ -9,7 +9,7 @@
 	<style>
 		body{
 			margin: 0;
-			font-family: "Unit-Regular";
+			font-family: "Unit-Medium";
 		}
 		path{ stroke: #ccc; fill: #eee;}
 		#symbols path{ stroke: #999;fill-opacity: .7;}
@@ -63,7 +63,7 @@
 <body>
 	<header>
 		<img src="logo.png"/>
-		<h1>Total Urban Population: 1960–2013</h1>
+		<h1>Total Population and Urban Growth</h1>
 	</header>
 	<script>
 
@@ -104,7 +104,7 @@ var projection = d3.geo.times()
 var path = d3.geo.path()
 	.projection( projection );
 
-var duration = 100;
+var duration = 150;
 
 var jsonData,
 	csvData,
@@ -132,9 +132,9 @@ var boundaryFeature = {type:"Feature",geometry:{
 
 d3.select( "header" ).style( "width", width + "px" );
 
-var symbolScale = d3.scale.linear()
+var symbolScale = d3.scale.sqrt()
 	.domain( [1000000,1000000000] )
-	.range( [3,50] );
+	.range( [3,40] );
 
 d3.select( "body" )
 	.append( "p" )
@@ -224,6 +224,16 @@ function updateSymbols( fieldName, tween ){
 				//.duration( tween ? duration : 0  )
 				.attr( "d",arc )
 		})
+		.sort(function(a,b){
+	      try{
+		      var aVal = parseInt(urbanTotal[ a.properties.code ][fieldName]) + parseInt(ruralTotal[ a.properties.code ][fieldName]);
+			  var bVal = parseInt(urbanTotal[ b.properties.code ][fieldName]) + parseInt(ruralTotal[ b.properties.code ][fieldName]); 
+	      }
+	      catch( e ) {
+		      return 0;
+	      }
+	      return  bVal - aVal;
+	    })
 		// .datum( [ urbanTotal[ d.properties.code ][fieldName], ruralTotal[ d.properties.code ][fieldName] ] )
 		// .selectAll("path")
 		// .data(pie)
@@ -421,17 +431,24 @@ function drawChart( id ){
 		.attr( "x", -175 )
 		.attr( "y", -10 )
 		.text( urban["Country Name"] + " Population" );
+}
 
+function showFlag(){
+	var chartScale = d3.scale.linear()
+		.domain( [0,100] )
+		.range( [75,0] );
+	var yearWidth = (width-230)/(maxYear-minYear);
 
 	d3.select( "#chart" )
 		.append( "line" )
 		.attr({
 			x1: (2007-minYear) * yearWidth,
 			x2: (2007-minYear) * yearWidth,
-			y1: chartScale(urban[2007]),
+			y1: chartScale(50),
 			y2: -130
 		})
 		.attr( "stroke", "black" )
+		.attr( "class", "flag" )
 	
 	d3.select( "#chart" )
 		.append( "rect" )
@@ -442,17 +459,15 @@ function drawChart( id ){
 			height: 85,
 			fill: "rgba(0,0,0,.75)"
 		})
-	// d3.select( "#chart" )
-	//  	.append( "path" )
-	//  	.attr( "d","M" + ((2007-minYear) * yearWidth) + "," + chartScale(50) + "L" + ((2007-minYear) * yearWidth-9) + ",-45h18Z" )
-	//  	.style( "fill", "rgba(0,0,0,.75)")
-	//  	.style( "stroke","none")
+		.attr( "class", "flag" )
+
 	var flag = d3.select("#chart")
 		.append( "text" )
 		.attr({
 			x: (2007-minYear) * yearWidth + 5,
 			y: -109
 		})
+		.attr( "class", "flag" )
 	flag.append( "tspan" )
 		.text( "2007" )
 		.attr( "font-size", "1.4em")
@@ -474,6 +489,10 @@ function drawChart( id ){
 		.attr( "font-size", "14px")
 }
 
+function hideFlag(){
+	d3.selectAll( ".flag" ).remove();
+}
+
 function play(){
 	animationInterval = setInterval( nextFrame, duration );
 }
@@ -484,6 +503,13 @@ function nextFrame(){
 	}
 	updateSymbols( currentYear, currentYear != minYear );
 	updateTimeline( currentYear != minYear );
+	if ( currentYear == 2007 ){
+		pause();
+		setTimeout( showFlag, duration );
+		setTimeout( play, duration + 2000 );
+	} else {
+		hideFlag();
+	}
 	currentYear++;
 	if ( currentYear > maxYear ){
 		currentYear = minYear-1;
