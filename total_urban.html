@@ -494,7 +494,7 @@ function hideFlag(){
 }
 
 function play(){
-	animationInterval = setInterval( nextFrame, duration );
+	//animationInterval = setInterval( nextFrame, duration );
 }
 function nextFrame(){
 	if ( currentYear < minYear ){
@@ -506,7 +506,7 @@ function nextFrame(){
 	if ( currentYear == 2007 ){
 		pause();
 		setTimeout( showFlag, duration );
-		setTimeout( play, duration + 2000 );
+		setTimeout( play, duration + 2500 );
 	} else {
 		hideFlag();
 	}
