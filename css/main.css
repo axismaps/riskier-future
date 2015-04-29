@@ -49,8 +49,17 @@ blockquote{
   line-height: 30px;
 }
 
+cite{
+  display: block;
+  color: #999;
+  font-family: 'Unit';
+  font-size: 14px;
+  font-style: normal;
+  text-transform: uppercase;
+}
+
 figure img{
-  max-width: 100%;
+  width: 100%;
 }
 
 a.footnote{
@@ -59,7 +68,7 @@ a.footnote{
   width: 16px;
   background-color: #c45823;
   font-family: 'Unit';
-  font-size: 12px;
+  font-size: 11px;
   line-height: 16px;
   text-align: center;
   color: white;
@@ -70,6 +79,7 @@ a.footnote{
 /* HEADINGS */
 
 h2{
+  margin-top: 80px;
   color: #019b8b;
   font-family: Unit-Regular;
   font-size: 24px;
@@ -93,8 +103,18 @@ h2:before{
   background-color: #a6d3ce;
 }
 
-.callout{
+/* INLINE */
+
+section > p:first-child{
   margin: 40px 0;
   font-size: 20px;
   line-height: 30px;
+}
+
+section > p:first-child:after{
+  content: '';
+  display: block;
+  width: 300px;
+  margin: 20px auto;
+  border-bottom: 1px dashed black;
 }
