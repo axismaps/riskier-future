@@ -146,3 +146,9 @@ section > p:first-child:after{
   margin: 20px auto;
   border-bottom: 1px dashed black;
 }
+
+/* IMAGES */
+img.full{
+  width: 900px;
+  margin: 0 -100px;
+}
