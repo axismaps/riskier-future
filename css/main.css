@@ -1,10 +1,12 @@
 /* LAYOUT */
 
 body {
+  margin: 0;
   font-family: 'Merriweather';
   font-weight: 300;
   font-size: 14px;
   line-height: 26px;
+  counter-reset: section;
 }
 
 section{
@@ -77,6 +79,32 @@ a.footnote{
 }
 
 /* HEADINGS */
+
+div.title{
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding-left: 75px;
+  background-size: cover;
+  background-position: center bottom;
+  color: white;
+  font-family: 'Unit';
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+div.title:before{
+  counter-increment: section;
+  content: "PART " counter(section);
+  font-size: 36px;
+  font-weight: 300;
+}
+
+h1{
+  font-size: 72px;
+  line-height: 72px;
+}
 
 h2{
   margin-top: 80px;
