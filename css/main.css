@@ -97,13 +97,17 @@ div.title{
 div.title:before{
   counter-increment: section;
   content: "PART " counter(section);
+  display: block;
   font-size: 36px;
   font-weight: 300;
 }
 
 h1{
+  padding-top: 30px;
+  display: inline-block;
   font-size: 72px;
   line-height: 72px;
+  border-top: 2px solid white;
 }
 
 h2{
