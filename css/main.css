@@ -152,9 +152,9 @@ section > p:first-child:after{
 }
 
 /* IMAGES */
-img.full{
-  width: 900px;
-  margin: 0 -100px;
+img.full, div.map, iframe{
+  width: 1000px;
+  margin: 40px -150px;
 }
 
 .map .header{
@@ -190,5 +190,5 @@ img.full{
 
 iframe{
   border: none;
-  height: 700px;
+  height: 560px;
 }
