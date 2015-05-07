@@ -6,10 +6,11 @@
 	<script src="http://d3js.org/queue.v1.min.js"></script>
 	<script src="lib/underscore-min.js"></script>
 	<link rel="stylesheet" href="lib/colorbrewer.css">
+  <link rel="stylesheet" href="css/fonts.css">
 	<style>
 		body{
 			margin: 0;
-			font-family: "Unit-Medium";
+			font-family: "Unit";
 			color: white;
 		}
 		path{ stroke: #ccc;}
@@ -60,15 +61,17 @@
 	</style>
 </head>
 <body>
+<!--
 	<header>
 		<img src="logo.png"/>
 		<h1>Percent Urban Population: 1960–2013</h1>
 	</header>
+-->
 	<script>
 
-var width = 1000,
-	height = 560;
-
+var width = window.innerWidth;
+var height = width * 0.4;
+    
 var svg = d3.select( "body" )
 	.append( "svg" )
 	.attr( "class", "YlGnBu" )

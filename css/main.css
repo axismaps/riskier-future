@@ -187,3 +187,8 @@ img.full{
 .map img{
   width: 100%;
 }
+
+iframe{
+  border: none;
+  height: 700px;
+}
