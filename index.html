@@ -19,7 +19,7 @@
         <p><b>Vulnerability</b> is the potential extent to which physical, social, economic and environmental assets may become damaged or disrupted when exposed to a hazard event. <b>Physical vulnerability</b> refers to the level of damage sustained by built structures due to the physical load imparted by a hazard event. Socio-economic or <b>Social vulnerability </b>refers to factors such as livelihood, social connections and gender, which influence a community’s ability to respond to, cope with and recover from a disaster. It can affect the number of casualties, the loss or disruption sustained and the community’s subsequent recovery time. Socio-economic development, unplanned urban development, unsafe building practices, the occurrence of disasters themselves, and the efficacy of post-disaster recovery all affect vulnerability.</p>
       </div>
       <blockquote class="left">‘Risk assessments need to account for temporal and spatial changes in hazard, exposure, and vulnerability, particularly in rapidly urbanizing areas or where climate change impacts will be felt the most. A risk assessment that provides an estimation of evolving or future risk is a way to engage stakeholders in carrying out actions now in order to avoid or mitigate the risk that is accumulating in their city or country. For example, risk analysis offers an opportunity to quantify the decrease in future risk that arises from better enforcement of building codes, and hence to demonstrate the benefit of spending additional funds on building code enforcement.’<a class="footnote" id="fn1">1</a></blockquote>
-      <p>Urban development, investments in infrastructure, and disaster risk management (DRM) policies act over multi-decadal timescales. Such mid- to long-term activities are likely to be affected by the future evolution of disaster risk. It is therefore important that the dynamic nature of disaster risk is accounted for in the decision making process. </p></div>
+      <p>Urban development, investments in infrastructure, and disaster risk management (DRM) policies act over multi-decadal timescales. Such mid- to long-term activities are likely to be affected by the future evolution of disaster risk. It is therefore important that the dynamic nature of disaster risk is accounted for in the decision making process. </p>
       <p>Disaster risk identification and assessment quantifies the effects of disasters in terms of the potential casualties and asset losses, to inform risk management, preparedness, financial protection and resilient reconstruction. To promote the utility of DRM programs into the future and to assess the benefits of current decisions on future risk, disaster risk assessments must be able to quantify future risk with and without the effects of DRM policies. In doing so, risk management specialists will be able to demonstrate <b>how actions taken now and in the near future could affect the risk environment of the mid- to long-term future</b>. This online report demonstrates the drivers of evolving disaster risk and highlights <b>key policy actions that</b> <b>promote risk</b> <b>reduction and</b> <b>avoid increases risk</b>.</p>
     </section>
     
@@ -41,6 +41,14 @@
       <p>Sea level rise is associated with ice sheet melt and thermal expansion of ocean waters and change in liquid water storage on land. Between 1901 and 2010, the global average sea-level rise totalled an estimated 19 cm (REF IPCC), and could rise by at least 0.61 m by 2100, even if climate policies are effective in reducing greenhouse gas emissions from 2020. </p>
       <p>Very few coastlines around the world will avoid the effects of sea level rise, resulting in the increased frequency and severity of <b>coastal flooding</b>, including storm surge associated with cyclones. Where the elevation of land and sea also converges due to coastal erosion, subsidence and uplift, and groundwater extraction, the coastal flood hazard is increasing dramatically. The global increase in hazard and the coastal location of significant populations and assets, makes this evolving hazard represents one of the most important to address in disaster management and climate adaptation. </p>
       <p>Intensification and seasonal shifts in rainfall, snow melt, and deglaciation of mountain ranges (Rees &amp; Collins, 2004), alter the timing, severity and geographical distribution of extreme <b>river flood</b> events in all regions of the world. There is no clear signal of climate change in the increasing losses observed over the past several decades (Kundzewicz et al., 2013; Visser, Petersen, &amp; Ligtvoet, 2014), which are primarily driven by exposure change, although future changes in flood frequency and intensity are expected (IPCC 2012). However, there are clear trends of repeated flooding in certain areas, which are also key locations of exposure. There is also a strong relationship between river flooding and inter-annual climatic variability such as El Niño and La Niña, which influence flooding in river basins covering almost half of the earth surface (Ward et al., 2014).</p>
+      
+      <div class="map">
+        <div class="header">
+          <span>Modeled Flooding: 1992-2010</span><a class="active">China</a><a>Pakistan</a><a>Venezuela</a>
+        </div>
+        <img src="frames/inundation-pakistan/1992-2010.jpg" class="graphic">
+      </div>
+      
       <figure class="left">
         <img src="data/img/figure2.png">
         <figcaption><b>Figure 2</b> The trend in recorded landslide fatalities for moderately-sized events, 1980-2003</figcaption>
@@ -204,12 +212,20 @@
     
     <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script>
-      $( document ).ready( function() {
+      $( document ).ready( resize );
+      $( window ).resize( resize );
+      
+      function resize() {
         var h = $( window ).height() - 100;
+        var w = $( window ).width();
         $( "div.title" )
           .height( h )
           .css( "padding-top", h * 0.6 );
-      });
+        
+        $( "div.map" )
+          .width( w )
+          .css( "margin-left", ( 700 - w ) / 2 );
+      };
     </script>
 	</body>
 </html>

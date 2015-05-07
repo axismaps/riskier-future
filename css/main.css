@@ -156,3 +156,34 @@ img.full{
   width: 900px;
   margin: 0 -100px;
 }
+
+.map .header{
+  height: 50px;
+  line-height: 50px;
+  background-color: #999;
+  color: #fffefe;
+  font-size: 24px;
+  font-family: 'Unit';
+  text-indent: 60px;
+}
+
+.map a{
+  display: inline-block;
+  text-indent: 0;
+  padding: 0 25px;
+  font-size: 18px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.map a.active, .map a:hover{
+  background-color: #666;
+}
+
+.map span{
+  margin-right: 25px;
+}
+
+.map img{
+  width: 100%;
+}
