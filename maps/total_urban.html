@@ -146,12 +146,12 @@ d3.select( "body" )
 
 
 queue()
-	.defer( d3.json, "data/json/admin0.geojson" )
-	.defer( d3.json, "data/json/disputed.geojson" )
-	.defer( d3.json, "data/json/centroids.geojson" )
-	.defer( d3.csv, "data/csv/percent_urban.csv" )
-	.defer( d3.csv, "data/csv/urban_total.csv" )
-	.defer( d3.csv, "data/csv/rural_total.csv" )
+	.defer( d3.json, "../data/json/admin0.geojson" )
+	.defer( d3.json, "../data/json/disputed.geojson" )
+	.defer( d3.json, "../data/json/centroids.geojson" )
+	.defer( d3.csv, "../data/csv/percent_urban.csv" )
+	.defer( d3.csv, "../data/csv/urban_total.csv" )
+	.defer( d3.csv, "../data/csv/rural_total.csv" )
 	.await( function( err, json, disp, cent, csv, urban, rural ){
 		jsonData = json;
 		jsonData.features = jsonData.features.concat( disp.features );

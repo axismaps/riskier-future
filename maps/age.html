@@ -143,11 +143,11 @@ d3.select( "body" )
 
 
 queue()
-	.defer( d3.json, "data/json/countries.json" )
-	.defer( d3.csv, "data/csv/age0-14.csv" )
-	.defer( d3.csv, "data/csv/age65-plus.csv" )
-	.defer( d3.csv, "data/csv/age15-64.csv" )
-	.defer( d3.csv, "data/csv/population.csv" )
+	.defer( d3.json, "../data/json/countries.json" )
+	.defer( d3.csv, "../data/csv/age0-14.csv" )
+	.defer( d3.csv, "../data/csv/age65-plus.csv" )
+	.defer( d3.csv, "../data/csv/age15-64.csv" )
+	.defer( d3.csv, "../data/csv/population.csv" )
 	.await( function( err, json, a0, a65, a15, pop ){
 		jsonData = json;
 		age0_14 = _.indexBy( a0, "Country Code" );
