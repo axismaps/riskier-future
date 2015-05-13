@@ -78,6 +78,59 @@ a.footnote{
   border-radius: 4px;
 }
 
+.fa{
+  font-family: "fontello";
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: .2em;
+  text-align: center;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1em;
+  margin-left: .2em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* HEADER */
+
+header{
+  height: 50px;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  font-family: 'Unit';
+  line-height: 50px;
+  background-color: #eee;
+  border-bottom: 1px solid black;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.25);
+  z-index: 5;
+}
+
+header div{
+  display: inline-block;
+  padding: 0 20px;
+}
+
+header .next, header .menu{
+  float: right;
+  color: #666;
+  cursor: pointer;
+}
+
+header .next{
+  background-color: #ccc;
+}
+
+header .current{
+  font-size: 18px;
+  font-weight: bold;
+}
+
 /* HEADINGS */
 
 div.title{
