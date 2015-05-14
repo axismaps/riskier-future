@@ -27,7 +27,7 @@
     </section>
     
     <div class="title" id="title2" style="background-image: url(data/img/Beast_NewDevelopment.jpg);">
-      <h1 title="Hazard">Drivers of Evolving Disaster Risk:<br />Hazard</h1>
+      <h1 title="Hazard">Drivers of Evolving Disaster Risk: Hazard</h1>
     </div>
     <section>
       <p><b>Climate change is a significant driver of evolving hazard, and a major cause of increased disaster risk.</b> Strong links have been made between changing climate and changes in the characteristics of disasters: ‘a changing climate leads to changes in the frequency, intensity, spatial extent, duration and timing of extreme weather and climate events, and can result in unprecedented extremes’ (IPCC, 2012, p.111). Research into the mechanisms and risks of changing climate shows that disaster risk has been affected already. However, human actions that change land-use and extract groundwater can also cause the evolution of hazard.</p>
@@ -75,7 +75,7 @@
     </section>
     
     <div class="title" id="title3" style="background-image: url(data/img/GFDRR_AdaptationToTogoFloods.jpg);">
-      <h1 title="Exposure">Drivers of Evolving Disaster Risk:<br />Exposure</h1>
+      <h1 title="Exposure">Drivers of Evolving Disaster Risk: Exposure</h1>
     </div>
     <section>
       <p>The rise in disaster losses over the past decades has been mainly attributed to changes in socio-economic factors – population, asset values of structures, and of infrastructure. The effect of exposure on increasing disaster losses is strong, and has been established with much more confidence than the effect of hazard and vulnerability (Visser et al., 2014).</p>
@@ -113,7 +113,7 @@
     </section>
     
     <div class="title" id="title4" style="background-image: url(data/img/GFDRR_UrbanFloodsColombo.jpg)">
-      <h1 title="Vulnerability">Drivers of Evolving Disaster Risk: <br />Vulnerability</h1>
+      <h1 title="Vulnerability">Drivers of Evolving Disaster Risk: Vulnerability</h1>
     </div>
     <section>
       <p>Vulnerability refers to the susceptibility of exposed people, assets and livelihoods to suffer adverse effects when impacted by natural hazards. Socio-economic or social vulnerability [28] may evolve over time positively or negatively due to large number of influencing factors, such as education, age, wealth, degree of access to resources and political power (e.g., Susan L Cutter, Boruff, &amp; Shirley, 2003).</p>
@@ -254,9 +254,8 @@
       function resize() {
         var h = $( window ).height() - 100;
         var w = $( window ).width();
-        $( "div.title" )
-          .height( h )
-          .css( "padding-top", h * 0.6 );
+        $( "div.title" ).height( h );
+        $( "h1" ).css( "top", h - 225 );
         
         onScroll();
       }

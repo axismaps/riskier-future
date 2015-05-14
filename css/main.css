@@ -147,20 +147,22 @@ div.title{
   box-sizing: border-box;
 }
 
-div.title:before{
+h1:before{
   counter-increment: section;
   content: "PART " counter(section);
   display: block;
+  position: relative;
+  border-bottom: 2px solid white;
   font-size: 36px;
   font-weight: 300;
 }
 
 h1{
-  padding-top: 30px;
+  position: relative;
   display: inline-block;
-  font-size: 72px;
+  margin: 0;
+  font-size: 64px;
   line-height: 72px;
-  border-top: 2px solid white;
 }
 
 h2{
