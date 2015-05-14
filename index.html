@@ -10,7 +10,7 @@
 	</head>
 	<body>
   	  <header>
-    	  <div class="next"></div><div class="menu">Jump to figure <i class="fa icon-down-open"></i><ul class="dropdown"></ul></div><div class="current"></div><div class="subsections"></div>
+    	  <div class="prev"><i class="fa icon-left-big"></i></div><div class="next"></div><div class="menu">Jump to figure <i class="fa icon-down-open"></i><ul class="dropdown"></ul></div><div class="current"></div><div class="subsections"></div>
   	  </header>
   	  
   	  <div id="wrapper">
@@ -381,6 +381,7 @@
             title = getActiveElement( ".title", s ),
             part = $( ".title" ).index( title ) + 1,
             next = $( $( ".title" )[ part ] ),
+            prev = $( $( ".title" )[ part - 2 ] ),
             map = getActiveElement( ".map", s + 100 ),
             mapOffset = map.offset().top;
             
@@ -429,6 +430,17 @@
             .html( "Part " + ( part + 1 ) + ": " + next.children( "h1" ).attr( "title" ).toUpperCase() + ' <i class="fa icon-right-big"></i>' );
         } else {
           $( "header .next" ).hide();
+        }
+        
+        if( prev.length > 0 ) {
+          $( "header .prev" )
+            .show()
+            .off( "click" )
+            .on( "click", function() {
+              $( "html, body" ).animate( { 'scrollTop' : prev.offset().top + 1 } );
+            })
+        } else {
+          $( "header .prev" ).hide();
         }
         
         function getActiveElement( sel, s ) {
