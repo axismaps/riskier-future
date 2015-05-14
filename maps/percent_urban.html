@@ -187,6 +187,23 @@ function createMap(){
 	createLegend();
 	createChart();
 	createTimeline();
+
+	svg.append( "rect" )
+		.attr( "id", "interaction" )
+		.attr( "transform", "translate(180," + (height-75) + ")" )
+		.attr( "fill", "rgba(0,0,0,0)" )
+		.attr({
+			x: 0,
+			y: 0,
+			width: width-230,
+			height: 75
+		})
+		.on( "click", function(){
+			var x = d3.mouse(this)[0],
+				yearWidth = (width-230)/(maxYear-minYear),
+				yearDelta = Math.round( x / yearWidth );
+			window.location.hash = yearDelta;
+		});
 	
 
 	goToFrame( minYear );
