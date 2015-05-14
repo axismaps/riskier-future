@@ -264,6 +264,11 @@ img.full, div.map{
 
 .map img{
   width: 100%;
+  display: none;
+}
+
+.map img:first-child{
+  display: inherit;
 }
 
 iframe{
