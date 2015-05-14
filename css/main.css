@@ -165,6 +165,7 @@ div.title{
   background-position: center bottom;
   color: white;
   font-family: 'Unit';
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
