@@ -337,7 +337,8 @@
     <script src="lib/jquery-ui.min.js"></script>
     <script>
       var currentPart = 0,
-          scrollLock = 0;
+          scrollLock = 0,
+          locked = false;
       
       $( document ).ready( function() {
         buildFigureMenu();
@@ -387,6 +388,7 @@
         if( mapOffset < s + 80 && mapOffset > s + 60 ) {
           if( scrollLock == 0 ) {
             scrollLock = s;
+            locked = true;
             $( "body" ).height( $( "body" ).height() );
             $( "#wrapper" ).css({
               "position" : "fixed",
@@ -394,15 +396,18 @@
             });
           }
           
-          var frame = Math.round( ( s - scrollLock ) / 20 ),
-              slider = map.find( ".slider" ),
-              max = slider.slider( "option", "max" );
-          
-          if( frame < 0 || frame > max ) {
-            $( "#wrapper, body" ).removeAttr( "style" );
-            $( window ).scrollTop( scrollLock );
-          } else {
-            slider.slider( "value", frame );
+          if( locked ) {
+            var frame = Math.round( ( s - scrollLock ) / 10 ),
+                slider = map.find( ".slider" ),
+                max = slider.slider( "option", "max" );
+            
+            if( frame < 0 || frame > max ) {
+              $( "#wrapper, body" ).removeAttr( "style" );
+              $( window ).scrollTop( scrollLock );
+              locked = false;
+            } else {
+              slider.slider( "value", frame );
+            }
           }
         } else {
           scrollLock = 0;
@@ -472,30 +477,43 @@
       
       function buildMaps() {
         $( ".map" ).each( function() {
+          $( this ).attr( "title", "0" );
           $( this ).find( ".slider" ).slider({
-            max : $( this ).find( "img" ).length - 1,
-            change: function( event, ui ) {
-              var map = $( ui.handle ).parents( ".map" ),
-                  frame = $( map.find( 'img' )[ ui.value ] ),
-                  shown = map.find( ".shown" );
-              
-              shown
-                .finish()
-                .css( "z-index", 1 );
-                
-              frame
-                .css( "z-index", 2 )
-                .animate( { opacity : 1 }, function() {
-                  map.find( ".shown" ).removeClass( "shown" );
-                  $( this )
-                    .addClass( "shown" )
-                    .removeAttr( "style" );
-                });
-                
-              map.find( ".year" ).text( frame.attr( "alt" ).replace( 't', '' ) );
-            }
+            max : ( $( this ).find( "img" ).length * 10 ) - 1,
+            change: updateMap,
+            slide: updateMap
           })
-        })
+        });
+        
+        $( "img.shown" ).css( "opacity", 1 );
+        
+        function updateMap( event, ui ) {
+          var value = Math.floor( ui.value / 10 );
+              map = $( ui.handle ).parents( ".map" ),
+              frame = $( map.find( 'img' )[ value ] ),
+              shown = map.find( ".shown" );
+              
+          if( map.attr( "title" ) == value.toString() ) return true;
+          
+          map.attr( "title", value );
+          
+          shown
+            .finish()
+            .removeClass( "shown" )
+            .addClass( "hiding" )
+            .css( "z-index", 1 );
+            
+          frame
+            .addClass( "shown" )
+            .css( "z-index", 2 )
+            .animate( { opacity : 1 }, function() {
+              map.find( ".hiding" )
+                .removeClass( "hiding" )
+                .css( "opacity", 0 )
+            });
+            
+          map.find( ".year" ).text( frame.attr( "alt" ).replace( 't', '' ) );
+        }
       }
       
       function loadMap( map, id ) {

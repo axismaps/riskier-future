@@ -272,11 +272,6 @@ div.map{
   opacity: 0;
 }
 
-.map img.shown{
-  opacity: 1;
-  z-index: 2;
-}
-
 iframe{
   height: 560px;
   width: 1000px;
