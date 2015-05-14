@@ -359,13 +359,12 @@
         $( window ).resize( resize );
         $( window ).scroll( onScroll );
         
-        $( ".menu" ).click( function() {
-          if( $( ".dropdown" ).is( ":visible" ) ) {
-            $( ".dropdown" ).slideUp();
-          } else {
-            $( ".dropdown" ).slideDown();
-          }
-        })
+        $( ".menu" ).mouseover( function() {
+          $( ".dropdown" ).stop().slideDown();
+        });
+        $( ".menu, .dropdown" ).mouseout( function() {
+          $( ".dropdown" ).stop().slideUp();
+        });
       });
       
       function resize() {
