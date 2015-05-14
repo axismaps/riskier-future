@@ -160,6 +160,11 @@ queue()
 		urbanTotal = _.indexBy( urban, "Country Code" );
 		ruralTotal = _.indexBy( rural, "Country Code" );
 		createMap();
+
+		window.onhashchange = function(){
+			var frame = window.location.hash.match(/\d+/)[0];
+			goToFrame( minYear + parseInt(frame) );
+		}
 	});
 
 function createMap(){
@@ -198,8 +203,8 @@ function createMap(){
 	createTimeline();
 	
 
-	nextFrame();
-	play();
+	goToFrame( minYear );
+	//play();
 
 }
 var pie = d3.layout.pie().sort(null);
@@ -504,6 +509,15 @@ function nextFrame(){
 		currentYear++;
 		return;
 	}
+	goToFrame( currentYear + 1 );
+}
+function goToFrame( frame ){
+	currentYear = frame;
+	if ( currentYear > maxYear ){
+		currentYear = minYear;
+		pause();
+		return;
+	}
 	updateSymbols( currentYear, currentYear != minYear );
 	updateTimeline( currentYear != minYear );
 	if ( currentYear == 2007 ){
@@ -513,11 +527,6 @@ function nextFrame(){
 	} else {
 		hideFlag();
 	}
-	currentYear++;
-	if ( currentYear > maxYear ){
-		currentYear = minYear-1;
-		pause();
-	} 
 }
 function pause(){
 	clearInterval(animationInterval);

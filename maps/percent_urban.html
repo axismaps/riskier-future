@@ -95,7 +95,6 @@ var mask = svg.append( "rect" )
 
 d3.select( "header" ).style( "width", width + "px" );
 
-
 var projection = d3.geo.times()
 	.center([0,5])
 	.rotate( [-25,0])
@@ -157,6 +156,11 @@ queue()
 		urbanTotal = _.indexBy( urban, "Country Code" );
 		ruralTotal = _.indexBy( rural, "Country Code" );
 		createMap();
+
+		window.onhashchange = function(){
+			var frame = window.location.hash.match(/\d+/)[0];
+			goToFrame( minYear + parseInt(frame) );
+		}
 	});
 
 function createMap(){
@@ -185,8 +189,8 @@ function createMap(){
 	createTimeline();
 	
 
-	nextFrame();
-	play();
+	goToFrame( minYear );
+	//play();
 
 }
 
@@ -468,19 +472,23 @@ function nextFrame(){
 		currentYear++;
 		return;
 	}
-	updateChoropleth( currentYear, currentYear != minYear );
-	updateTimeline( currentYear != minYear );
-	if ( currentYear == 2007 ){
+	goToFrame( currentYear + 1 );
+}
+function goToFrame( frame ){
+	currentYear = frame;
+	if ( currentYear > maxYear ){
+		currentYear = minYear;
+		pause();
+		return;
+	}
+	updateChoropleth( frame, frame != minYear );
+	updateTimeline( frame != minYear );
+	if ( frame == 2007 ){
 		pause();
 		setTimeout( showFlag, duration );
 		setTimeout( play, duration + 2500 );
 	} else {
 		hideFlag();
-	}
-	currentYear++;
-	if ( currentYear > maxYear ){
-		currentYear = minYear-1;
-		pause();
 	}
 }
 function pause(){

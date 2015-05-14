@@ -155,6 +155,11 @@ queue()
 		age15_64 = _.indexBy( a15, "Country Code" );
 		population = _.indexBy( pop, "Country Code" );
 		createMap();
+
+		window.onhashchange = function(){
+			var frame = window.location.hash.match(/\d+/)[0];
+			goToFrame( minYear + parseInt(frame) );
+		}
 	});
 
 function createMap(){
@@ -207,8 +212,8 @@ function createMap(){
 	createTimeline();
 	createChart();
 
-	nextFrame();
-	play();
+	goToFrame( minYear );
+	//play();
 
 }
 
@@ -538,13 +543,17 @@ function nextFrame(){
 		currentYear++;
 		return;
 	}
+	goToFrame( currentYear + 1 );
+}
+function goToFrame( frame ){
+	currentYear = frame;
+	if ( currentYear > maxYear ){
+		currentYear = minYear;
+		pause();
+		return;
+	}
 	updateSymbols( currentYear, currentYear != minYear );
 	updateTimeline( currentYear != minYear );
-	currentYear++;
-	if ( currentYear > maxYear ){
-		currentYear = minYear-1;
-		pause();
-	} 
 }
 function pause(){
 	clearInterval(animationInterval);
