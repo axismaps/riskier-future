@@ -116,15 +116,27 @@ header div{
   padding: 0 20px;
 }
 
-header .next, header .menu{
+header .next, header .menu, header .prev{
   float: right;
   color: #666;
   text-align: right;
   cursor: pointer;
 }
 
-header .next{
+header .prev{
+  float: left;
+  padding: 0;
+  width: 50px;
+  text-align: center;
+  display: none;
+}
+
+header .next, header .prev{
   background-color: #ccc;
+}
+
+header .next:hover, header .prev:hover{
+  background-color: #ddd;
 }
 
 header .current{
@@ -165,6 +177,7 @@ div.title{
   background-position: center bottom;
   color: white;
   font-family: 'Unit';
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
