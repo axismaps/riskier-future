@@ -276,3 +276,46 @@ iframe{
   width: 1000px;
   border: none;
 }
+
+.control{
+  height: 50px;
+  background-color: #999;
+}
+
+.control .year{
+  margin: 0 40px;
+  float: left;
+  line-height: 50px;
+  color: white;
+  font-family: 'Unit';
+  font-weight: bold;
+  font-size: 24px;
+}
+
+.slider{
+  width: 800px;
+  float: left;
+  height: 2px;
+  background-color: #333;
+  position: relative;
+  top: 24px;
+}
+
+.ui-slider-handle{
+  width: 25px;
+  height: 25px;
+  top: -0.5em !important;
+  background-color: white;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+}
+
+.ui-slider-handle:before{
+  content: "|";
+  height: 100%;
+  width: 100%;
+  display: block;
+  text-align: center;
+  font-size: 10px;
+  line-height: 20px;
+}
