@@ -230,7 +230,7 @@ section > p:first-child:after{
 }
 
 /* IMAGES */
-img.full, div.map, iframe{
+img.full, div.map{
   width: 1000px;
   margin: 40px -150px;
 }
@@ -267,6 +267,7 @@ img.full, div.map, iframe{
 }
 
 iframe{
-  border: none;
   height: 560px;
+  width: 1000px;
+  border: none;
 }
