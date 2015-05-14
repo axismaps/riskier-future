@@ -52,7 +52,7 @@
           <span>Modeled Flooding: 1992-2010</span><a class="active" id="inundation-china">China</a><a id="inundation-pakistan">Pakistan</a><a id="inundation-venezuela">Venezuela</a>
         </div>
         <div class="frames">
-          <img src="frames/inundation-china/1992.jpg" alt="1992">
+          <img src="frames/inundation-china/1992.jpg" class="shown" alt="1992">
           <img src="frames/inundation-china/1993.jpg" alt="1993">
           <img src="frames/inundation-china/1994.jpg" alt="1994">
           <img src="frames/inundation-china/1995.jpg" alt="1995">
@@ -114,7 +114,7 @@
           <span>Urban Expansion: 1990-2010</span><a class="active" id="urban-bangkok">Bangkok</a><a id="urban-kampala">Kampala</a><a id="urban-kathmandu">Kathmandu</a><a id="urban-shanghai">Shanghai</a>
         </div>
         <div class="frames">
-          <img src="frames/urban-bangkok/1990.jpg" alt="1990">
+          <img src="frames/urban-bangkok/1990.jpg" class="shown" alt="1990">
           <img src="frames/urban-bangkok/1990t.jpg" alt="1990t">
           <img src="frames/urban-bangkok/2000.jpg" alt="2000">
           <img src="frames/urban-bangkok/2000t.jpg" alt="2000t">
@@ -122,7 +122,10 @@
           <img src="frames/urban-bangkok/2005t.jpg" alt="2005t">
           <img src="frames/urban-bangkok/2010.jpg" alt="2010">
         </div>
-        <div class="slider"></div>
+        <div class="control">
+          <div class="year">1990</div>
+          <div class="slider"></div>
+        </div>
         <div class="legend"></div>
       </div>
       
@@ -148,7 +151,7 @@
           <span>Night Lights: 1992-2010</span><a class="active" id="lights-seasia">Southeast Asia</a><a id="lights-wafrica">West Africa</a>
         </div>
         <div class="frames">
-          <img src="frames/lights-seasia/1992.jpg" alt="1992">
+          <img src="frames/lights-seasia/1992.jpg" class="shown" alt="1992">
           <img src="frames/lights-seasia/1992t.jpg" alt="1992t">
           <img src="frames/lights-seasia/1994.jpg" alt="1994">
           <img src="frames/lights-seasia/1994t.jpg" alt="1994t">
@@ -168,7 +171,10 @@
           <img src="frames/lights-seasia/2008t.jpg" alt="2008t">
           <img src="frames/lights-seasia/2010.jpg" alt="2010">
         </div>
-        <div class="slider"></div>
+        <div class="control">
+          <div class="year">1992</div>
+          <div class="slider"></div>
+        </div>
         <div class="legend"></div>
       </div>
       
@@ -266,7 +272,7 @@
           <span>Projected Sea Level Rise: Cité Soleil</span><a class="active" id="slr-haiti" style="display: none"></a>
         </div>
         <div class="frames">
-          <img src="frames/slr-haiti/2010.jpg" alt="2010">
+          <img src="frames/slr-haiti/2010.jpg" class="shown" alt="2010">
           <img src="frames/slr-haiti/2020.jpg" alt="2020">
           <img src="frames/slr-haiti/2030.jpg" alt="2030">
           <img src="frames/slr-haiti/2040.jpg" alt="2040">
@@ -277,7 +283,10 @@
           <img src="frames/slr-haiti/2090.jpg" alt="2090">
           <img src="frames/slr-haiti/2100.jpg" alt="2100">
         </div>
-        <div class="slider"></div>
+        <div class="control">
+          <div class="year">2010</div>
+          <div class="slider"></div>
+        </div>
         <div class="legend"></div>
       </div>
       
@@ -433,7 +442,31 @@
       }
       
       function buildMaps() {
-        $( ".slider" ).slider();
+        $( ".map" ).each( function() {
+          $( this ).find( ".slider" ).slider({
+            max : $( this ).find( "img" ).length - 1,
+            slide: function( event, ui ) {
+              var map = $( ui.handle ).parents( ".map" ),
+                  frame = $( map.find( 'img' )[ ui.value ] ),
+                  shown = map.find( ".shown" );
+              
+              shown
+                .finish()
+                .css( "z-index", 1 );
+                
+              frame
+                .css( "z-index", 2 )
+                .animate( { opacity : 1 }, function() {
+                  map.find( ".shown" ).removeClass( "shown" );
+                  $( this )
+                    .addClass( "shown" )
+                    .removeAttr( "style" );
+                });
+                
+              map.find( ".year" ).text( frame.attr( "alt" ).replace( 't', '' ) );
+            }
+          })
+        })
       }
       
       function loadMap( map, id ) {

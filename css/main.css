@@ -235,6 +235,10 @@ img.full, div.map{
   margin: 40px -150px;
 }
 
+div.map{
+  height: 500px;
+}
+
 .map .header{
   height: 50px;
   line-height: 50px;
@@ -263,12 +267,14 @@ img.full, div.map{
 }
 
 .map img{
-  width: 100%;
-  display: none;
+  width: 1000px;
+  position: absolute;
+  opacity: 0;
 }
 
-.map img:first-child{
-  display: inherit;
+.map img.shown{
+  opacity: 1;
+  z-index: 2;
 }
 
 iframe{
@@ -279,6 +285,7 @@ iframe{
 
 .control{
   height: 50px;
+  margin-top: 398px;
   background-color: #999;
 }
 
