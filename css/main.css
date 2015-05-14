@@ -127,6 +127,10 @@ header .next{
   background-color: #ccc;
 }
 
+header .next:hover{
+  background-color: #ddd;
+}
+
 header .current{
   font-size: 18px;
   font-weight: bold;
