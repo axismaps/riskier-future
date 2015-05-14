@@ -9,7 +9,7 @@
 	</head>
 	<body>
   	  <header>
-    	  <div class="next"></div><div class="menu">Jump to figure <i class="fa icon-down-open"></i></div><div class="current"></div><div class="subsections"></div>
+    	  <div class="next"></div><div class="menu">Jump to figure <i class="fa icon-down-open"></i><ul class="dropdown"></ul></div><div class="current"></div><div class="subsections"></div>
   	  </header>
     	<div class="title" id="title1" style="background-image: url(data/img/Beast_Low-ying.jpg);">
       <h1 title="Evolving Risk">Evolving Disaster Risk</h1>
@@ -139,6 +139,7 @@
       <p>Disaster Risk Management (DRM) operates by reducing one or more of the risk components, to reduce overall disaster risk. For example, mitigation of the hazard involves modification of frequency or intensity of the event, for example reducing frequency of flooding by increasing river channel capacity, so that the channel can contain a greater volume of water without flooding adjacent land. Land-use zoning can reduce current exposure or prevent future increases in exposure to a hazard or multiple hazards, by restricting new construction in hazardous areas or by managing the retreat of existing development to safer areas. Structural strengthening of existing buildings or compliance with building codes can ensure future construction are less vulnerable to damage from extreme winds, water ingress or ground shaking. </p>
       <figure class="right" id="fig4">
         <img src="data/img/image14.png">
+        <figcaption><b>Figure 4</b></figcaption>
       </figure>
       <p>In addition to disaster risk evolving in the absence of policy decisions, some policy decisions can inadvertently increase disaster risk by encouraging development in hazardous areas or allowing practices that increase vulnerability. This is often the result of neglecting to consider risks in planning or decision-making processes.</p>
       <p>The evolution of disaster risk can be influenced by various DRM policy tools and strategies that are already implemented to various extents in different sectors and regions. This section highlights these tools in the context of preventing increases in future disaster risk, as well as risk reduction. </p>
@@ -247,9 +248,22 @@
     
     <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script>
-      $( document ).ready( resize );
-      $( window ).resize( resize );
-      $( window ).scroll( onScroll );
+      $( document ).ready( function() {
+        resize();
+        buildFigureMenu();
+        
+        $( window ).resize( resize );
+        $( window ).scroll( onScroll );
+        
+        $( ".menu" ).click( function() {
+          console.log( "YIO" );
+          if( $( ".dropdown" ).is( ":visible" ) ) {
+            $( ".dropdown" ).slideUp();
+          } else {
+            $( ".dropdown" ).slideDown();
+          }
+        })
+      });
       
       function resize() {
         var h = $( window ).height() - 100;
@@ -287,6 +301,33 @@
             if( active.offset().top <= s ) return false;
           });
           return active;
+        }
+      }
+      
+      function buildFigureMenu() {
+        $( "figure" ).each( function( i ) {
+          $( ".dropdown" ).append(
+            $( document.createElement( 'li' ) )
+              .html( cleanCaption( $( this ).children( 'figcaption' ) ) )
+              .click( function() {
+                $( "html, body" ).animate( { 'scrollTop' : $( "#fig" + ( i + 1 ) ).offset().top - 100 } );
+              })
+          );
+        })
+        
+        function cleanCaption( caption ) {
+          if( caption.length == 0 ) return '';
+          
+          caption.children( 'a' ).remove();
+          
+          var html = caption.html(),
+              trunc = html.indexOf( ' ', 75 );
+          
+          if( trunc != -1 ) {
+            html = html.substr( 0, trunc ) + "...";
+          }
+          
+          return html;
         }
       }
       
