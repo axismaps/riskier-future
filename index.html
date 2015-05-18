@@ -136,12 +136,12 @@
           <p>Urbanisation, the increase in proportion of the world population living in cities compared to rural areas, is a particularly important factor in evolving exposure. Cities are dense, highly concentrated locations of exposure, so when they are affected by a disaster, losses can be disproportionately large.</p>
         </div>
         
-        <div class="map" id="map3">
+        <div class="map iframe" id="map3">
           <div class="header">
-            <span>Global Urban Population: 1960-2013</span><a class="active">Total Urban</a><a>Percent Urban</a>
+            <span>Global Urban Population: 1960-2013</span><a class="active" id="total_urban">Total Urban</a><a id="percent_urban">Percent Urban</a>
           </div>
-          <iframe src="maps/total_urban.html" scrolling="no"></iframe>
-          <iframe src="maps/percent_urban.html" scrolling="no" style="display: none"></iframe>
+          <iframe src="maps/total_urban.html#0" name="total_urban" scrolling="no"></iframe>
+          <iframe src="maps/percent_urban.html#0" name="percent_urban" scrolling="no" style="display: none"></iframe>
         </div>
         
         <p>Rapid and unplanned expansion of urban populations may increase exposure due to increased density as cities become more high-rise, or may expand outwards causing change in land-use and an increase in the population over a wider area. The urban poor are most likely to settle in low-value hazardous areas, for example unstable slopes or reclaimed land (which is often susceptible to flooding and liquefaction), disproportionately increasing hazard exposure and exacerbating their socio-economic vulnerability to disasters.</p>
@@ -400,14 +400,20 @@
           if( locked ) {
             var frame = Math.round( ( s - scrollLock ) / 10 ),
                 slider = map.find( ".slider" ),
-                max = slider.slider( "option", "max" );
+                max = map.hasClass( "iframe" ) ? 106 : slider.slider( "option", "max" );
             
             if( frame < 0 || frame > max ) {
-              $( "#wrapper, body" ).removeAttr( "style" );
-              $( window ).scrollTop( scrollLock );
-              locked = false;
-            } else {
-              slider.slider( "value", frame );
+                $( "#wrapper, body" ).removeAttr( "style" );
+                $( window ).scrollTop( scrollLock );
+                locked = false;
+            } else { 
+              if( map.hasClass( "iframe" ) ) {
+                $( "iframe" ).each( function() {
+                  $( this ).attr( "src", $( this ).attr( "src" ).replace( /\d*$/, Math.round( frame / 2 ) ) );
+                });
+              } else {
+                slider.slider( "value", frame );
+              }
             }
           }
         } else {
@@ -529,9 +535,14 @@
       }
       
       function loadMap( map, id ) {
-        map.find( 'img' ).each( function() {
-          $( this ).attr( "src", $( this ).attr( "src" ).replace( map.find( ".active" ).attr( "id" ), id ) );
-        })
+        if( map.hasClass( "iframe" ) ) {
+          $( "iframe" ).hide();
+          $( "iframe[ name='" + id + "']" ).show();
+        } else {
+          map.find( 'img' ).each( function() {
+            $( this ).attr( "src", $( this ).attr( "src" ).replace( map.find( ".active" ).attr( "id" ), id ) );
+          });
+        }
       }
       
     </script>

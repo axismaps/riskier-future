@@ -252,6 +252,10 @@ div.map{
   height: 500px;
 }
 
+div.map.iframe{
+  height: 600px;
+}
+
 .map .header{
   height: 50px;
   line-height: 50px;
