@@ -14,6 +14,7 @@
 			color: white;
 		}
 		path{ stroke: #ccc;}
+		path.highlight{ stroke: #333; }
 		.null{ fill: #eee; }
 		#boundary path{ fill: #fff; stroke: none;}
 		#year{ font-size: 72px;}
@@ -58,6 +59,20 @@
 			margin: 10px;
 		}
 		#chart text, #timeline text{ fill: white;}
+		#probe{
+			position: absolute;
+			color: #333;
+			display: none;
+			background: white;
+			border: 1px solid #ccc;
+			max-width: 250px;
+		}
+		#probe p{
+			margin: 10px;
+		}
+		#probe p:first-child{
+			font-weight: bold;
+		}
 	</style>
 </head>
 <body>
@@ -182,7 +197,33 @@ function createMap(){
 		.enter()
 		.append( "path" )
 		.attr( "id", function(d){ return d.properties.ISO_A2 })
-		.attr( "d", path );
+		.attr( "d", path )
+		.on( "mouseover", function(d){
+			d3.select(this).classed("highlight",true);
+			d3.select(this).node().parentNode.appendChild(this);
+			probe.datum(d)
+				.html(
+					"<p>" + d.properties.WB_ADM0_NA + "</p>" +
+					"<p>" + Math.round( parseFloat(d.properties.data[currentYear]) ) + "% urban</p>"
+				)
+				.style("display","block");
+		})
+		.on("mousemove",function(d){
+			var t = d3.event.clientY - probe.node().offsetHeight - 5;
+			if ( t <= 0 ) t+= probe.node().offsetHeight + 10;
+			var l = d3.event.clientX + 5;
+			if ( l + probe.node().offsetWidth > width ) l -= probe.node().offsetWidth + 10;
+			probe.style({
+				top: t,
+				left: l
+			});
+		})
+		.on("mouseout",function(){
+			d3.select(this).classed("highlight",false);
+			probe.style("display","none");
+		})
+
+	var probe = d3.select( "body" ).append( "div" ).attr( "id","probe" );
 
 	createLegend();
 	createChart();
@@ -222,6 +263,11 @@ function updateChoropleth( fieldName, tween ){
 			return classification( d.properties.data[fieldName] ) 
 		});
 	setTimeout( function(){ d3.select( "#year" ).text( fieldName ) }, tween ? duration : 0 );
+	d3.select("#probe")
+		.html(function(d){
+			if ( !d ) return "";
+			return "<p>" + d.properties.WB_ADM0_NA + "</p><p>" + Math.round( parseFloat(d.properties.data[currentYear]) ) + "% urban</p>"
+		})
 }
 
 function createLegend(){

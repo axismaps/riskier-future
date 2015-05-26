@@ -14,6 +14,7 @@
 		}
 		path{ stroke: #ccc; fill: #eee;}
 		#symbols path{ stroke: #999;fill-opacity: .7;}
+		#symbols g.highlight path{ stroke: #333; }
 		#legend circle{ fill: rgba(255,255,255,.5); stroke: #999;}
 		.null{ fill: #eee; }
 		#boundary path{ fill: #fff; stroke:none;}
@@ -59,6 +60,20 @@
 			margin: 10px;
 		}
 		#chart text, #timeline text{ fill: white;}
+		#probe{
+			position: absolute;
+			color: #333;
+			display: none;
+			background: white;
+			border: 1px solid #ccc;
+			max-width: 250px;
+		}
+		#probe p{
+			margin: 10px;
+		}
+		#probe p:first-child{
+			font-weight: bold;
+		}
 	</style>
 </head>
 <body>
@@ -194,6 +209,33 @@ function createMap(){
 		.attr( "transform", function(d){
 			return "translate(" + projection(d.geometry.coordinates).toString() + ")";
 		})
+		.on( "mouseover", function(d){
+			d3.select(this).classed("highlight",true);
+			probe.datum(d)
+				.html(
+					"<p>" + d.properties.WB_ADM0_NA + "</p>" +
+					"<p>Urban: " + format(parseInt(urbanTotal[ d.properties.code ][currentYear])) + "</p>" +
+					"<p>Rural: " + format(parseInt(ruralTotal[ d.properties.code ][currentYear])) + "</p>"
+				)
+				.style("display","block");
+		})
+		.on("mousemove",function(d){
+			var t = d3.event.clientY - probe.node().offsetHeight - 5;
+			if ( t <= 0 ) t+= probe.node().offsetHeight + 10;
+			var l = d3.event.clientX + 5;
+			if ( l + probe.node().offsetWidth > width ) l -= probe.node().offsetWidth + 10;
+			probe.style({
+				top: t,
+				left: l
+			});
+		})
+		.on("mouseout",function(){
+			d3.select(this).classed("highlight",false);
+			probe.style("display","none");
+		})
+
+	var probe = d3.select( "body" ).append( "div" ).attr( "id","probe" );
+	var format = d3.format(",");
 
 	symb.append( "path" ).attr("class","urban")
 	symb.append( "path" ).attr("class","rural");
@@ -271,6 +313,11 @@ function updateSymbols( fieldName, tween ){
 		// 	return d3.svg.arc().outerRadius(symbolScale( d.properties.data[fieldName] ))(d);//symbolScale( d.properties.data[fieldName] );
 		//});
 	setTimeout( function(){ d3.select( "#year" ).text( fieldName ) }, tween ? duration : 0 );
+	d3.select("#probe")
+		.html(function(d){
+			if ( !d ) return "";
+			return "<p>" + d.properties.WB_ADM0_NA + "</p><p>Urban: " + d3.format(",")(parseInt(urbanTotal[ d.properties.code ][currentYear])) + "</p><p>Rural: " + d3.format(",")(parseInt(ruralTotal[ d.properties.code ][currentYear])) + "</p>"
+		})
 }
 
 function createLegend(){
