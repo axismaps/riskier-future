@@ -264,6 +264,7 @@ img.full, div.map{
 
 div.map{
   height: 500px;
+  position: relative;
 }
 
 div.map.iframe{
@@ -301,6 +302,32 @@ div.map.iframe{
   width: 1000px;
   position: absolute;
   opacity: 0;
+}
+
+.map .legend{
+  position:  absolute;
+  bottom: 52px;
+  background-color: rgba(0,0,0,.6);
+  color: white;
+  font-family: 'Unit';
+  padding: 10px 20px 10px 40px;
+  z-index: 3;
+  font-size: 18px;
+}
+
+.map .legend > div{
+  margin: 10px 0;
+}
+
+.map .legend > div > *{
+  display: inline-block;
+  margin: 0;
+}
+
+.map .legend > div > div{
+  width: 14px;
+  height: 14px;
+  margin-right: 5px;
 }
 
 iframe{
