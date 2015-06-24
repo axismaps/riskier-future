@@ -179,6 +179,7 @@
             <span>Night Lights: 1992-2010</span><a class="active" id="lights-seasia">Southeast Asia</a><a id="lights-wafrica">West Africa</a>
           </div>
           <div class="frames">
+            <video src="videos/lights-seasia.mp4" controls></video><!-- 
             <img src="frames/lights-seasia/1992.jpg" class="shown" alt="1992">
             <img src="frames/lights-seasia/1992t.jpg" alt="1992t">
             <img src="frames/lights-seasia/1994.jpg" alt="1994">
@@ -197,7 +198,7 @@
             <img src="frames/lights-seasia/2006t.jpg" alt="2006t">
             <img src="frames/lights-seasia/2008.jpg" alt="2008">
             <img src="frames/lights-seasia/2008t.jpg" alt="2008t">
-            <img src="frames/lights-seasia/2010.jpg" alt="2010">
+            <img src="frames/lights-seasia/2010.jpg" alt="2010"> -->
           </div>
           <div class="control">
             <div class="year">1992</div>
@@ -216,6 +217,7 @@
               <div style="background-color:#bf292b"></div>
               <p>1992 Light</p>
             </div>
+          </div>
         </div>
         
         <p>Satellite imagery is being increasingly used to indicate changes in exposure, and in socio-economic conditions. NOAA’s night-time light data has been used increasingly to indicate spatial changes in exposure, as intensity and spatial distribution of light change over time (Ceola et al., 2014). These data capture economic activity as a functions of reflective night-time lights. Multiple studies have used these data as a proxy of GDP and poverty. </p>
@@ -447,40 +449,53 @@
             prev = $( $( ".title" )[ part - 2 ] ),
             map = getActiveElement( ".map", s + 100 ),
             mapOffset = map.offset().top;
+        //console.log(mapOffset-s)
             
         if( mapOffset < s + 80 && mapOffset > s + 60 ) {
-          if( scrollLock == 0 ) {
-            scrollLock = s;
-            locked = true;
-            $( "body" ).height( $( "body" ).height() );
-            $( "#wrapper" ).css({
-              "position" : "fixed",
-              "top" : -s,
-              "width" : $( window ).width()
-            });
-          }
-          
-          if( locked ) {
-            var frame = Math.round( ( s - scrollLock ) / 10 ),
-                slider = map.find( ".slider" ),
-                max = map.hasClass( "iframe" ) ? 106 : slider.slider( "option", "max" );
-            
-            if( frame < 0 || frame > max ) {
-                $( "#wrapper, body" ).removeAttr( "style" );
-                $( window ).scrollTop( scrollLock );
-                locked = false;
-            } else { 
-              if( map.hasClass( "iframe" ) ) {
-                $( "iframe" ).each( function() {
-                  $( this ).attr( "src", $( this ).attr( "src" ).replace( /\d*$/, Math.round( frame / 2 ) ) );
-                });
-              } else {
-                slider.slider( "value", frame );
-              }
+          if( map.hasClass( "iframe" ) ){
+            var frame = $( "iframe", map )[0];
+            if ( !frame.contentWindow.isPlaying && !frame.contentWindow.played ){
+              frame.contentWindow.play();
             }
           }
+        //   if( scrollLock == 0 ) {
+        //     scrollLock = s;
+        //     locked = true;
+        //     $( "body" ).height( $( "body" ).height() );
+        //     $( "#wrapper" ).css({
+        //       "position" : "fixed",
+        //       "top" : -s,
+        //       "width" : $( window ).width()
+        //     });
+        //   }
+          
+        //   if( locked ) {
+        //     var frame = Math.round( ( s - scrollLock ) / 10 ),
+        //         slider = map.find( ".slider" ),
+        //         max = map.hasClass( "iframe" ) ? 106 : slider.slider( "option", "max" );
+            
+        //     if( frame < 0 || frame > max ) {
+        //         $( "#wrapper, body" ).removeAttr( "style" );
+        //         $( window ).scrollTop( scrollLock );
+        //         locked = false;
+        //     } else { 
+        //       if( map.hasClass( "iframe" ) ) {
+        //         $( "iframe" ).each( function() {
+        //           $( this ).attr( "src", $( this ).attr( "src" ).replace( /\d*$/, Math.round( frame / 2 ) ) );
+        //         });
+        //       } else {
+        //         slider.slider( "value", frame );
+        //       }
+        //     }
+        //   }
+        // } else {
+        //   scrollLock = 0;
         } else {
-          scrollLock = 0;
+          if( map.hasClass( "iframe" ) ){
+            $( "iframe", map ).each( function(){
+              this.contentWindow.played = false;
+            });
+          }
         }
             
         if( part == currentPart ) return true;
@@ -600,7 +615,8 @@
       function loadMap( map, id ) {
         if( map.hasClass( "iframe" ) ) {
           $( "iframe" ).hide();
-          $( "iframe[ name='" + id + "']" ).show();
+          var frame = $( "iframe[ name='" + id + "']" ).show();
+          if ( !frame[0].contentWindow.isPlaying ) frame[0].contentWindow.play();
         } else {
           map.find( 'img' ).each( function() {
             $( this ).attr( "src", $( this ).attr( "src" ).replace( map.find( ".active" ).attr( "id" ), id ) );

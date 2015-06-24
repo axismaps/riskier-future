@@ -204,7 +204,7 @@ function createMap(){
 			probe.datum(d)
 				.html(
 					"<p>" + d.properties.WB_ADM0_NA + "</p>" +
-					"<p>" + Math.round( parseFloat(d.properties.data[currentYear]) ) + "% urban</p>"
+					"<p>" + Math.round( parseFloat(d.properties.data[currentYear >= minYear ? currentYear : maxYear]) ) + "% urban</p>"
 				)
 				.style("display","block");
 		})
@@ -257,12 +257,12 @@ function updateChoropleth( fieldName, tween ){
 	countries.selectAll( "path" )
 		.transition()
 		.ease( "linear" )
-		.duration( tween ? duration : 0 )
+		.duration( tween ? duration : 10 )
 		.attr( "fill", function(d){ 
 			if ( !d.properties.data ) return "#eee"
 			return classification( d.properties.data[fieldName] ) 
 		});
-	setTimeout( function(){ d3.select( "#year" ).text( fieldName ) }, tween ? duration : 0 );
+	setTimeout( function(){ d3.select( "#year" ).text( fieldName ) }, tween ? duration : 10 );
 	d3.select("#probe")
 		.html(function(d){
 			if ( !d ) return "";
@@ -352,7 +352,7 @@ function updateTimeline( tween ){
 	var yearWidth = (width-230)/(maxYear-minYear);
 	d3.select( "#progress" )
 		.transition()
-		.duration( tween ? duration : 0 )
+		.duration( tween ? duration : 10 )
 		.ease( "linear" )
 		.attr( "width", (currentYear-minYear) * yearWidth );
 }
@@ -526,13 +526,17 @@ function showFlag(){
 function hideFlag(){
 	d3.selectAll( ".flag" ).remove();
 }
-
+var isPlaying, played;
 function play(){
 	animationInterval = setInterval( nextFrame, duration );
+	isPlaying = true;
+	played = true;
 }
 function nextFrame(){
 	if ( currentYear < minYear ){
 		currentYear++;
+		d3.select( "#progress" )
+			.attr( "width", 0 );
 		return;
 	}
 	goToFrame( currentYear + 1 );
@@ -540,7 +544,8 @@ function nextFrame(){
 function goToFrame( frame ){
 	currentYear = frame;
 	if ( currentYear > maxYear ){
-		currentYear = minYear;
+		currentYear = minYear-1;
+		isPlaying = false;
 		pause();
 		return;
 	}

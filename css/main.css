@@ -271,6 +271,11 @@ div.map.iframe{
   height: 600px;
 }
 
+div.map video{
+  position: absolute;
+  height: 398px;
+}
+
 .map .header{
   height: 50px;
   line-height: 50px;
