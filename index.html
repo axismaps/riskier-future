@@ -453,10 +453,12 @@
             
         if( mapOffset < s + 80 && mapOffset > s + 60 ) {
           if( map.hasClass( "iframe" ) ){
-            var frame = $( "iframe", map )[0];
+            var frame = $( "iframe:visible", map )[0];
             if ( !frame.contentWindow.isPlaying && !frame.contentWindow.played ){
               frame.contentWindow.play();
             }
+          } else {
+            // videos
           }
         //   if( scrollLock == 0 ) {
         //     scrollLock = s;
