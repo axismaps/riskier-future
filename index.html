@@ -59,6 +59,7 @@
           <div class="control">
             <div class="slider"></div>
           </div>
+          <div class="play"><i class="fa icon-play-circled2"></i></div>
         </div>
         
         <figure class="left" id="fig2">
@@ -101,6 +102,7 @@
           <div class="control">
             <div class="slider"></div>
           </div>
+          <div class="play"><i class="fa icon-play-circled2"></i></div>
         </div>
         
         <p>Regional contributions to growth are variable: probabilistic analyses of United Nations population data shows that the population of Asia is expected to peak at over 5 billion people in 2050 before declining to 2100; The populations of Europe, North America and Latin America and the Caribbean are expected to remain around their current size, and the population of Africa shows the largest expected increase, from 1.1 billion today to 2.5 billion in 2050, and over 4 billion in 2100 <a class="footnote" id="fn26">26</a>.</p>
@@ -130,6 +132,7 @@
           <div class="control">
             <div class="slider"></div>
           </div>
+          <div class="play"><i class="fa icon-play-circled2"></i></div>
         </div>
         
         <p>Satellite imagery is being increasingly used to indicate changes in exposure, and in socio-economic conditions. NOAA’s night-time light data has been used increasingly to indicate spatial changes in exposure, as intensity and spatial distribution of light change over time (Ceola et al., 2014). These data capture economic activity as a functions of reflective night-time lights. Multiple studies have used these data as a proxy of GDP and poverty. </p>
@@ -232,7 +235,7 @@
             <div class="year">2010</div>
             <div class="slider"></div>
           </div>
-          <div class="legend"></div>
+          <div class="play"><i class="fa icon-play-circled2"></i></div>
         </div>
         
         <h2><span>Further information</span></h2>
@@ -369,6 +372,7 @@
               this.contentWindow.played = false;
             });
           }
+         // map.find(".play").show();
         }
             
         if( part == currentPart ) return true;
@@ -456,7 +460,15 @@
           var map = $(this);
           map.find( "video" ).on( "timeupdate", function(){ 
             map.find(".slider").slider( "value", 100*this.currentTime/this.duration );
-          }).on("click",function(){ this.play() });
+          }).on( "play", function(){
+            map.find( ".play" ).hide();
+          }).click(function(){
+            this.play();
+          })
+          map.find( ".play" ).click(function(){
+            map.find( "video" )[0].play();
+            $(this).hide();
+          });
         });
         
         function updateMap( event, ui ) {
@@ -493,6 +505,7 @@
           var v = map.find( 'video' );
           v.attr( "src", v.attr( "src" ).replace( map.find( ".active" ).attr( "id" ), id ) )
             .on( "canplay", function(){ this.play() });
+          map.find(".play").show();
         }
       }
       
