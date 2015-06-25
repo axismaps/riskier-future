@@ -456,7 +456,7 @@
           var map = $(this);
           map.find( "video" ).on( "timeupdate", function(){ 
             map.find(".slider").slider( "value", 100*this.currentTime/this.duration );
-          });
+          }).on("click",function(){ this.play() });
         });
         
         function updateMap( event, ui ) {
