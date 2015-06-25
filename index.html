@@ -506,6 +506,7 @@
           });
           var frame = $( "iframe[ name='" + id + "']" ).show();
           if ( !frame[0].contentWindow.isPlaying ) frame[0].contentWindow.play();
+          map.find(".play").hide();
         } else {
           var v = map.find( 'video' );
           v.attr( "src", v.attr( "src" ).replace( map.find( ".active" ).attr( "id" ), id ) )

@@ -316,7 +316,6 @@ function updateSymbols( fieldName, tween ){
 		// 	if ( !d.properties.data ) return "M0,0";
 		// 	return d3.svg.arc().outerRadius(symbolScale( d.properties.data[fieldName] ))(d);//symbolScale( d.properties.data[fieldName] );
 		//});
-console.log('f',fieldName)
 	if ( tween ) setTimeout( function(){ d3.select( "#year" ).text( fieldName ) }, duration );
 	else d3.select( "#year" ).text( fieldName )
 
@@ -398,7 +397,6 @@ function createTimeline(){
 
 function updateTimeline( tween ){
 	var yearWidth = (width-230)/(maxYear-minYear);
-	console.log('y',currentYear)
 	if ( tween ){
 		d3.select( "#progress" )
 			.transition()

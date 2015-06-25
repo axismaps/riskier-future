@@ -570,8 +570,8 @@ function goToFrame( frame ){
 		pause();
 		return;
 	}
-	updateChoropleth( frame, frame != minYear );
-	updateTimeline( frame != minYear );
+	updateChoropleth( frame, false );
+	updateTimeline( false );
 	if ( frame == 2007 ){
 		pause();
 		setTimeout( showFlag, duration );
