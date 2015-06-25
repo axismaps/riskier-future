@@ -352,7 +352,6 @@
             prev = $( $( ".title" )[ part - 2 ] ),
             map = getActiveElement( ".map", s + 100 ),
             mapOffset = map.offset().top;
-        //console.log(mapOffset-s)
             
         if( mapOffset < s + 80 && mapOffset > s + 60 ) {
           if( map.hasClass( "iframe" ) ){
@@ -364,38 +363,6 @@
             // videos
             $( "video", map )[0].play();
           }
-        //   if( scrollLock == 0 ) {
-        //     scrollLock = s;
-        //     locked = true;
-        //     $( "body" ).height( $( "body" ).height() );
-        //     $( "#wrapper" ).css({
-        //       "position" : "fixed",
-        //       "top" : -s,
-        //       "width" : $( window ).width()
-        //     });
-        //   }
-          
-        //   if( locked ) {
-        //     var frame = Math.round( ( s - scrollLock ) / 10 ),
-        //         slider = map.find( ".slider" ),
-        //         max = map.hasClass( "iframe" ) ? 106 : slider.slider( "option", "max" );
-            
-        //     if( frame < 0 || frame > max ) {
-        //         $( "#wrapper, body" ).removeAttr( "style" );
-        //         $( window ).scrollTop( scrollLock );
-        //         locked = false;
-        //     } else { 
-        //       if( map.hasClass( "iframe" ) ) {
-        //         $( "iframe" ).each( function() {
-        //           $( this ).attr( "src", $( this ).attr( "src" ).replace( /\d*$/, Math.round( frame / 2 ) ) );
-        //         });
-        //       } else {
-        //         slider.slider( "value", frame );
-        //       }
-        //     }
-        //   }
-        // } else {
-        //   scrollLock = 0;
         } else {
           if( map.hasClass( "iframe" ) ){
             $( "iframe", map ).each( function(){
