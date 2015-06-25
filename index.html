@@ -54,25 +54,7 @@
             <span>Modeled Flooding: 1992-2010</span><a class="active" id="inundation-china">China</a><a id="inundation-pakistan">Pakistan</a><a id="inundation-venezuela">Venezuela</a>
           </div>
           <div class="frames">
-            <img src="frames/inundation-china/1992.jpg" class="shown" alt="1992">
-            <img src="frames/inundation-china/1993.jpg" alt="1993">
-            <img src="frames/inundation-china/1994.jpg" alt="1994">
-            <img src="frames/inundation-china/1995.jpg" alt="1995">
-            <img src="frames/inundation-china/1996.jpg" alt="1996">
-            <img src="frames/inundation-china/1997.jpg" alt="1997">
-            <img src="frames/inundation-china/1998.jpg" alt="1998">
-            <img src="frames/inundation-china/1999.jpg" alt="1999">
-            <img src="frames/inundation-china/2000.jpg" alt="2000">
-            <img src="frames/inundation-china/2001.jpg" alt="2001">
-            <img src="frames/inundation-china/2002.jpg" alt="2002">
-            <img src="frames/inundation-china/2003.jpg" alt="2003">
-            <img src="frames/inundation-china/2004.jpg" alt="2004">
-            <img src="frames/inundation-china/2005.jpg" alt="2005">
-            <img src="frames/inundation-china/2006.jpg" alt="2006">
-            <img src="frames/inundation-china/2007.jpg" alt="2007">
-            <img src="frames/inundation-china/2008.jpg" alt="2008">
-            <img src="frames/inundation-china/2009.jpg" alt="2009">
-            <img src="frames/inundation-china/2010.jpg" alt="2010">
+            <video src="videos/inundation-china.mp4"></video>
           </div>
           <div class="control">
             <div class="year">1992</div>
@@ -129,13 +111,7 @@
             <span>Urban Expansion: 1990-2010</span><a class="active" id="urban-bangkok">Bangkok</a><a id="urban-kampala">Kampala</a><a id="urban-kathmandu">Kathmandu</a><a id="urban-shanghai">Shanghai</a>
           </div>
           <div class="frames">
-            <img src="frames/urban-bangkok/1990.jpg" class="shown" alt="1990">
-            <img src="frames/urban-bangkok/1990t.jpg" alt="1990t">
-            <img src="frames/urban-bangkok/2000.jpg" alt="2000">
-            <img src="frames/urban-bangkok/2000t.jpg" alt="2000t">
-            <img src="frames/urban-bangkok/2005.jpg" alt="2005">
-            <img src="frames/urban-bangkok/2005t.jpg" alt="2005t">
-            <img src="frames/urban-bangkok/2010.jpg" alt="2010">
+            <video src="videos/urban-bangkok.mp4"></video>
           </div>
           <div class="control">
             <div class="year">1990</div>
@@ -179,26 +155,7 @@
             <span>Night Lights: 1992-2010</span><a class="active" id="lights-seasia">Southeast Asia</a><a id="lights-wafrica">West Africa</a>
           </div>
           <div class="frames">
-            <video src="videos/lights-seasia.mp4" controls></video><!-- 
-            <img src="frames/lights-seasia/1992.jpg" class="shown" alt="1992">
-            <img src="frames/lights-seasia/1992t.jpg" alt="1992t">
-            <img src="frames/lights-seasia/1994.jpg" alt="1994">
-            <img src="frames/lights-seasia/1994t.jpg" alt="1994t">
-            <img src="frames/lights-seasia/1996.jpg" alt="1996">
-            <img src="frames/lights-seasia/1996t.jpg" alt="1996t">
-            <img src="frames/lights-seasia/1998.jpg" alt="1998">
-            <img src="frames/lights-seasia/1998t.jpg" alt="1998t">
-            <img src="frames/lights-seasia/2000.jpg" alt="2000">
-            <img src="frames/lights-seasia/2000t.jpg" alt="2000t">
-            <img src="frames/lights-seasia/2002.jpg" alt="2002">
-            <img src="frames/lights-seasia/2002t.jpg" alt="2002t">
-            <img src="frames/lights-seasia/2004.jpg" alt="2004">
-            <img src="frames/lights-seasia/2004t.jpg" alt="2004t">
-            <img src="frames/lights-seasia/2006.jpg" alt="2006">
-            <img src="frames/lights-seasia/2006t.jpg" alt="2006t">
-            <img src="frames/lights-seasia/2008.jpg" alt="2008">
-            <img src="frames/lights-seasia/2008t.jpg" alt="2008t">
-            <img src="frames/lights-seasia/2010.jpg" alt="2010"> -->
+            <video src="videos/lights-seasia.mp4"></video>
           </div>
           <div class="control">
             <div class="year">1992</div>
@@ -314,16 +271,7 @@
             <span>Projected Sea Level Rise: Cité Soleil</span><a class="active" id="slr-haiti" style="display: none"></a>
           </div>
           <div class="frames">
-            <img src="frames/slr-haiti/2010.jpg" class="shown" alt="2010">
-            <img src="frames/slr-haiti/2020.jpg" alt="2020">
-            <img src="frames/slr-haiti/2030.jpg" alt="2030">
-            <img src="frames/slr-haiti/2040.jpg" alt="2040">
-            <img src="frames/slr-haiti/2050.jpg" alt="2050">
-            <img src="frames/slr-haiti/2060.jpg" alt="2060">
-            <img src="frames/slr-haiti/2070.jpg" alt="2070">
-            <img src="frames/slr-haiti/2080.jpg" alt="2080">
-            <img src="frames/slr-haiti/2090.jpg" alt="2090">
-            <img src="frames/slr-haiti/2100.jpg" alt="2100">
+            <video src="videos/slr-haiti.mp4"></video>
           </div>
           <div class="control">
             <div class="year">2010</div>
@@ -459,6 +407,7 @@
             }
           } else {
             // videos
+            $( "video", map )[0].play();
           }
         //   if( scrollLock == 0 ) {
         //     scrollLock = s;
@@ -620,9 +569,9 @@
           var frame = $( "iframe[ name='" + id + "']" ).show();
           if ( !frame[0].contentWindow.isPlaying ) frame[0].contentWindow.play();
         } else {
-          map.find( 'img' ).each( function() {
-            $( this ).attr( "src", $( this ).attr( "src" ).replace( map.find( ".active" ).attr( "id" ), id ) );
-          });
+          var v = map.find( 'video' );
+          v.attr( "src", v.attr( "src" ).replace( map.find( ".active" ).attr( "id" ), id ) )
+            .on( "canplay", function(){ this.play() });
         }
       }
       

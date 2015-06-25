@@ -258,7 +258,7 @@ section > p:first-child:after{
 
 /* IMAGES */
 img.full, div.map{
-  width: 1000px;
+  width: 960px;
   margin: 40px -150px;
 }
 
@@ -268,12 +268,12 @@ div.map{
 }
 
 div.map.iframe{
+  width: 1000px;
   height: 600px;
 }
 
 div.map video{
   position: absolute;
-  height: 398px;
 }
 
 .map .header{
@@ -318,6 +318,7 @@ div.map video{
   padding: 10px 20px 10px 40px;
   z-index: 3;
   font-size: 18px;
+  display: none;
 }
 
 .map .legend > div{
@@ -345,6 +346,7 @@ iframe{
   height: 50px;
   margin-top: 398px;
   background-color: #999;
+  display: none;
 }
 
 .control .year{
