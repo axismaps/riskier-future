@@ -526,40 +526,39 @@
         $( ".map" ).each( function() {
           $( this ).attr( "title", "0" );
           $( this ).find( ".slider" ).slider({
-            max : ( $( this ).find( "img" ).length * 10 ) - 1,
-            change: updateMap,
+            max : 100,
+            start: slideStart,
+            stop: slideStop,
             slide: updateMap
           })
+          var map = $(this);
+          map.find( "video" ).on( "timeupdate", function(){ 
+            map.find(".slider").slider( "value", 100*this.currentTime/this.duration );
+          });
         });
         
-        $( "img.shown" ).css( "opacity", 1 );
-        
         function updateMap( event, ui ) {
-          var value = Math.floor( ui.value / 10 );
+          var value = ( ui.value / 100 );
               map = $( ui.handle ).parents( ".map" ),
-              frame = $( map.find( 'img' )[ value ] ),
-              shown = map.find( ".shown" );
-              
-          if( map.attr( "title" ) == value.toString() ) return true;
-          
-          map.attr( "title", value );
-          
-          shown
-            .finish()
-            .removeClass( "shown" )
-            .addClass( "hiding" )
-            .css( "z-index", 1 );
-            
-          frame
-            .addClass( "shown" )
-            .css( "z-index", 2 )
-            .animate( { opacity : 1 }, function() {
-              map.find( ".hiding" )
-                .removeClass( "hiding" )
-                .css( "opacity", 0 )
-            });
-            
-          map.find( ".year" ).text( frame.attr( "alt" ).replace( 't', '' ) );
+              video = map.find( 'video' )[0];
+
+          video.currentTime = value * video.duration;
+        }
+
+        function slideStart( event, ui ) {
+          var value = Math.floor( ui.value / 100 );
+              map = $( ui.handle ).parents( ".map" ),
+              video = map.find( 'video' )[0];
+
+          video.pause();
+        }
+
+        function slideStop( event, ui ) {
+          var value = Math.floor( ui.value / 100 );
+              map = $( ui.handle ).parents( ".map" ),
+              video = map.find( 'video' )[0];
+
+          video.play();
         }
       }
       

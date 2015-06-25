@@ -263,7 +263,7 @@ img.full, div.map{
 }
 
 div.map{
-  height: 500px;
+  height: 574px;
   position: relative;
 }
 
@@ -344,9 +344,8 @@ iframe{
 
 .control{
   height: 50px;
-  margin-top: 398px;
+  margin-top: 476px;
   background-color: #999;
-  display: none;
 }
 
 .control .year{
@@ -357,6 +356,7 @@ iframe{
   font-family: 'Unit';
   font-weight: bold;
   font-size: 24px;
+  display: none;
 }
 
 .slider{
@@ -366,6 +366,7 @@ iframe{
   background-color: #333;
   position: relative;
   top: 24px;
+  margin-left: 80px;
 }
 
 .ui-slider-handle{
