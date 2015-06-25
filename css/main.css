@@ -309,33 +309,6 @@ div.map video{
   opacity: 0;
 }
 
-.map .legend{
-  position:  absolute;
-  bottom: 52px;
-  background-color: rgba(0,0,0,.6);
-  color: white;
-  font-family: 'Unit';
-  padding: 10px 20px 10px 40px;
-  z-index: 3;
-  font-size: 18px;
-  display: none;
-}
-
-.map .legend > div{
-  margin: 10px 0;
-}
-
-.map .legend > div > *{
-  display: inline-block;
-  margin: 0;
-}
-
-.map .legend > div > div{
-  width: 14px;
-  height: 14px;
-  margin-right: 5px;
-}
-
 iframe{
   height: 560px;
   width: 1000px;
@@ -346,17 +319,6 @@ iframe{
   height: 50px;
   margin-top: 476px;
   background-color: #999;
-}
-
-.control .year{
-  margin: 0 40px;
-  float: left;
-  line-height: 50px;
-  color: white;
-  font-family: 'Unit';
-  font-weight: bold;
-  font-size: 24px;
-  display: none;
 }
 
 .slider{
