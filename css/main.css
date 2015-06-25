@@ -289,6 +289,11 @@ div.map video{
   left: 0;
   font-size: 100px;
   color: #999;
+  cursor: pointer;
+}
+
+.map .play:hover{
+  color: #333;
 }
 
 .map .header{

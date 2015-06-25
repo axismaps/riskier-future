@@ -571,7 +571,7 @@ function goToFrame( frame ){
 		return;
 	}
 	updateChoropleth( frame, frame != minYear );
-	updateTimeline( false );
+	updateTimeline( frame != minYear );
 	if ( frame == 2007 ){
 		pause();
 		setTimeout( showFlag, duration );
@@ -582,6 +582,11 @@ function goToFrame( frame ){
 }
 function pause(){
 	clearInterval(animationInterval);
+}
+function reset(){
+	pause();
+	isPlaying = false;
+	goToFrame(minYear);
 }
 	</script>
 </body>

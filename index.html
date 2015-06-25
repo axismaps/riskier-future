@@ -117,6 +117,7 @@
           </div>
           <iframe src="maps/total_urban.html#0" name="total_urban" scrolling="no"></iframe>
           <iframe src="maps/percent_urban.html#0" name="percent_urban" scrolling="no" style="display: none"></iframe>
+          <div class="play"><i class="fa icon-play-circled2"></i></div>
         </div>
         
         <p>Rapid and unplanned expansion of urban populations may increase exposure due to increased density as cities become more high-rise, or may expand outwards causing change in land-use and an increase in the population over a wider area. The urban poor are most likely to settle in low-value hazardous areas, for example unstable slopes or reclaimed land (which is often susceptible to flooding and liquefaction), disproportionately increasing hazard exposure and exacerbating their socio-economic vulnerability to disasters.</p>
@@ -465,7 +466,10 @@
             this.play();
           })
           map.find( ".play" ).click(function(){
-            map.find( "video" )[0].play();
+            if ( map.find( "video" ).length )
+              map.find( "video" )[0].play();
+            else 
+              map.find("iframe")[0].contentWindow.play();
             $(this).hide();
           });
         });
@@ -497,7 +501,9 @@
       
       function loadMap( map, id ) {
         if( map.hasClass( "iframe" ) ) {
-          $( "iframe" ).hide();
+          $( "iframe" ).hide().each(function(){
+            this.contentWindow.reset();
+          });
           var frame = $( "iframe[ name='" + id + "']" ).show();
           if ( !frame[0].contentWindow.isPlaying ) frame[0].contentWindow.play();
         } else {
