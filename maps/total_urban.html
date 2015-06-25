@@ -180,6 +180,10 @@ queue()
 			var frame = window.location.hash.match(/\d+/)[0];
 			goToFrame( minYear + parseInt(frame) );
 		}
+
+		d3.select( "body" ).on( "click", function(){
+			if ( !isPlaying ) play();
+		})
 	});
 
 function createMap(){
@@ -312,7 +316,9 @@ function updateSymbols( fieldName, tween ){
 		// 	if ( !d.properties.data ) return "M0,0";
 		// 	return d3.svg.arc().outerRadius(symbolScale( d.properties.data[fieldName] ))(d);//symbolScale( d.properties.data[fieldName] );
 		//});
-	setTimeout( function(){ d3.select( "#year" ).text( fieldName ) }, tween ? duration : 10 );
+	if ( tween ) setTimeout( function(){ d3.select( "#year" ).text( fieldName ) }, duration );
+	else d3.select( "#year" ).text( fieldName )
+
 	d3.select("#probe")
 		.html(function(d){
 			if ( !d ) return "";
@@ -391,11 +397,16 @@ function createTimeline(){
 
 function updateTimeline( tween ){
 	var yearWidth = (width-230)/(maxYear-minYear);
-	d3.select( "#progress" )
-		.transition()
-		.duration( tween ? duration : 10 )
-		.ease( "linear" )
-		.attr( "width", (currentYear-minYear) * yearWidth );
+	if ( tween ){
+		d3.select( "#progress" )
+			.transition()
+			.duration( tween ? duration : 10 )
+			.ease( "linear" )
+			.attr( "width", (currentYear-minYear) * yearWidth );
+	} else {
+		d3.select( "#progress" )
+			.attr( "width", (currentYear-minYear) * yearWidth );
+	}
 }
 
 function createChart(){
@@ -588,8 +599,8 @@ function goToFrame( frame ){
 		isPlaying = false;
 		return;
 	}
-	updateSymbols( currentYear, currentYear != minYear );
-	updateTimeline( currentYear != minYear );
+	updateSymbols( currentYear, false );
+	updateTimeline( false );
 	if ( currentYear == 2007 ){
 		pause();
 		setTimeout( showFlag, duration );

@@ -176,6 +176,10 @@ queue()
 			var frame = window.location.hash.match(/\d+/)[0];
 			goToFrame( minYear + parseInt(frame) );
 		}
+
+		d3.select( "body" ).on( "click", function(){
+			if ( !isPlaying ) play();
+		})
 	});
 
 function createMap(){
@@ -254,15 +258,26 @@ function createMap(){
 
 
 function updateChoropleth( fieldName, tween ){
-	countries.selectAll( "path" )
-		.transition()
-		.ease( "linear" )
-		.duration( tween ? duration : 10 )
-		.attr( "fill", function(d){ 
-			if ( !d.properties.data ) return "#eee"
-			return classification( d.properties.data[fieldName] ) 
-		});
-	setTimeout( function(){ d3.select( "#year" ).text( fieldName ) }, tween ? duration : 10 );
+	if ( tween ){
+		countries.selectAll( "path" )
+			.transition()
+			.ease( "linear" )
+			.duration( tween ? duration : 10 )
+			.attr( "fill", function(d){ 
+				if ( !d.properties.data ) return "#eee"
+				return classification( d.properties.data[fieldName] ) 
+			});
+		} else {
+			countries.selectAll( "path" )
+				.attr( "fill", function(d){ 
+					if ( !d.properties.data ) return "#eee"
+					return classification( d.properties.data[fieldName] ) 
+				});
+		}
+	
+	if ( tween ) setTimeout( function(){ d3.select( "#year" ).text( fieldName ) }, duration );
+	else d3.select( "#year" ).text( fieldName )
+	
 	d3.select("#probe")
 		.html(function(d){
 			if ( !d ) return "";
@@ -350,11 +365,17 @@ function createTimeline(){
 
 function updateTimeline( tween ){
 	var yearWidth = (width-230)/(maxYear-minYear);
-	d3.select( "#progress" )
-		.transition()
-		.duration( tween ? duration : 10 )
-		.ease( "linear" )
-		.attr( "width", (currentYear-minYear) * yearWidth );
+	if ( tween ){
+		d3.select( "#progress" )
+			.transition()
+			.duration( tween ? duration : 10 )
+			.ease( "linear" )
+			.attr( "width", (currentYear-minYear) * yearWidth );
+	} else {
+		d3.select( "#progress" )
+			.attr( "width", (currentYear-minYear) * yearWidth );
+	}
+	
 }
 
 function createChart(){
@@ -550,7 +571,7 @@ function goToFrame( frame ){
 		return;
 	}
 	updateChoropleth( frame, frame != minYear );
-	updateTimeline( frame != minYear );
+	updateTimeline( false );
 	if ( frame == 2007 ){
 		pause();
 		setTimeout( showFlag, duration );
