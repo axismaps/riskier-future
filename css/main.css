@@ -114,7 +114,7 @@ p.footnote.hover{
   -moz-osx-font-smoothing: grayscale;
 }
 
-.footnote > a {
+a:not( .footnote ) {
   overflow-wrap: break-word;
 }
 
