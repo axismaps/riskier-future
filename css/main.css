@@ -110,6 +110,10 @@ p.footnote.hover{
   -moz-osx-font-smoothing: grayscale;
 }
 
+.footnote > a {
+  overflow-wrap: break-word;
+}
+
 /* HEADER */
 
 header{
