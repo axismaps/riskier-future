@@ -68,7 +68,7 @@ a.footnote{
   display: inline-block;
   height: 16px;
   width: 16px;
-  background-color: #c45823;
+  background-color: #f4a27a;
   font-family: 'Unit';
   font-size: 11px;
   line-height: 16px;
@@ -78,6 +78,10 @@ a.footnote{
   border-radius: 4px;
   cursor: pointer;
   text-decoration: none;
+}
+
+a.footnote:hover{
+  background-color: #c45823;
 }
 
 p.footnote.hover{
@@ -112,6 +116,12 @@ p.footnote.hover{
 
 .footnote > a {
   overflow-wrap: break-word;
+  color: #c65816;
+  text-decoration: none;
+}
+
+.footnote > a:hover {
+  text-decoration: underline;
 }
 
 /* HEADER */
