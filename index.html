@@ -475,8 +475,11 @@
             map.find(".slider").slider( "value", 100*this.currentTime/this.duration );
           }).on( "play", function(){
             map.find( ".play" ).hide();
-          }).click(function(){
-            this.play();
+          }).click( function(){
+            if( this.paused ) 
+              this.play();
+            else
+              this.pause();
           })
           map.find( ".play" ).click(function(){
             if ( map.find( "video" ).length )
