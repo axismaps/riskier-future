@@ -100,10 +100,11 @@
     font-style: normal;
 }
 
-.icon-facebook-squared:before { content: '\e800'; }
-.icon-twitter-squared:before { content: '\e801'; }
+.icon-left-big:before { content: '\e800'; }
+.icon-right-big:before { content: '\e801'; }
 .icon-down-open:before { content: '\e802'; }
-.icon-right-big:before { content: '\e803'; }
-.icon-left-big:before { content: '\e805'; }
-.icon-mail-squared:before { content: '\e804'; }
-.icon-play-circled2:before { content: '\e801'; }
+.icon-play-circled2:before { content: '\e803'; }
+.icon-facebook-squared:before { content: '\e804'; }
+.icon-twitter-squared:before { content: '\e805'; }
+.icon-mail-squared:before { content: '\e806'; }
+
