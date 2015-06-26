@@ -44,6 +44,10 @@ section{
   border-left: 1px solid #a7d3ce;
 }
 
+italic{
+  font-style: italic;
+}
+
 blockquote{
   color: #179a8b;
   font-size: 20px;
@@ -199,6 +203,7 @@ div.title{
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
+  clear: both;
 }
 
 h1:before{
