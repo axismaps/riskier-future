@@ -291,7 +291,8 @@
     <script>
       var currentPart = 0,
           scrollLock = 0,
-          locked = false;
+          locked = false,
+          footnoteTimer = {};
       
       $( document ).ready( function() {
         buildFigureMenu();
@@ -332,15 +333,27 @@
         $( "a.footnote" ).attr("href",function(){
           return "#footnote" + $(this).attr("id").replace( "fn", "" );
         }).mouseover(function(){
+          window.clearTimeout( footnoteTimer );
           var id = parseInt( $(this).attr("id").replace( "fn", "" ) ),
             fn = $( "p.footnote" ).eq( id-1 ).clone()
               .addClass( "hover" )
+              .on( 'mouseover', function(){
+                window.clearTimeout( footnoteTimer );
+              })
+              .on( 'mouseout', function(){
+                footnoteTimer = window.setTimeout( function(){
+                  $( "p.footnote.hover" ).remove();
+                  $( ".footnote-close" ).remove();
+                }, 500 );
+              })
               .appendTo( "#wrapper" );
           fn.css( "left", $(this).offset().left + 400 > window.innerWidth ? $(this).offset().left - fn.width() - 25 : $(this).offset().left + 25 )
             .css( "top", $(this).offset().top - fn.height() - 35 < $("body").scrollTop() + 50 ? $(this).offset().top + 10 : $(this).offset().top - fn.height() - 35 );
         }).on( "mouseout", function(){
-          $( "p.footnote.hover" ).remove();
-          $( ".footnote-close" ).remove();
+          footnoteTimer = window.setTimeout( function(){
+            $( "p.footnote.hover" ).remove();
+            $( ".footnote-close" ).remove();
+          }, 500 );
         }).on( "click", function(e){
           e.preventDefault();
           var fn = $( $(this).attr("href") )
