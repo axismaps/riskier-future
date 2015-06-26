@@ -314,6 +314,16 @@
         $( ".menu, .dropdown" ).mouseout( function() {
           $( ".dropdown" ).stop().slideUp();
         });
+        
+        //for tablets
+        $( ".menu" ).on( 'touchstart', function(e){
+          e.stopPropagation();
+          $( ".dropdown" ).stop().slideToggle();
+        });
+        $( 'body' ).on( 'touchstart', function(){
+          $( ".dropdown" ).stop().slideUp();
+        });
+        
 
         $( "a.footnote" ).attr("href",function(){
           return "#footnote" + $(this).attr("id").replace( "fn", "" );
