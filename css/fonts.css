@@ -107,4 +107,6 @@
 .icon-facebook-squared:before { content: '\e804'; }
 .icon-twitter-squared:before { content: '\e805'; }
 .icon-mail-squared:before { content: '\e806'; }
+.icon-play:before { content: '\e807'; }
+.icon-pause:before { content: '\e808'; }
 
