@@ -342,6 +342,8 @@
         $( "a.footnote" ).attr("href",function(){
           return "#footnote" + $(this).attr("id").replace( "fn", "" );
         }).mouseover(function(){
+          $( "p.footnote.hover" ).remove();
+          $( ".footnote-close" ).remove();
           window.clearTimeout( footnoteTimer );
           var id = parseInt( $(this).attr("id").replace( "fn", "" ) ),
             fn = $( "p.footnote" ).eq( id-1 ).clone()
