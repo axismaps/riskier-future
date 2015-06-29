@@ -63,6 +63,10 @@ cite{
   text-transform: uppercase;
 }
 
+figure{
+  margin: 0;
+}
+
 figure img{
   width: 100%;
 }
@@ -290,12 +294,12 @@ section > p:first-child:after{
 img.full, div.map{
   width: 960px;
   margin: 40px -150px;
+  padding: 0 20px;
 }
 
 div.map{
   height: 574px;
   position: relative;
-  padding: 0 20px;
   margin-bottom: 100px;
 }
 
