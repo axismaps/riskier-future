@@ -183,6 +183,7 @@ queue()
 
 		d3.select( "body" ).on( "click", function(){
 			if ( !isPlaying ) play();
+      else pause();
 		})
 	});
 
@@ -611,6 +612,7 @@ function goToFrame( frame ){
 }
 function pause(){
 	clearInterval(animationInterval);
+  isPlaying = false;
 }
 function reset(){
 	pause();
