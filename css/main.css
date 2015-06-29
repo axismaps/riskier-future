@@ -11,7 +11,7 @@ body {
 
 section{
   width: 700px;
-  margin: auto;
+  margin: 0 auto 200px;
   padding: 0 40px;
 }
 
@@ -61,6 +61,7 @@ cite{
   font-family: 'Unit';
   font-size: 14px;
   font-style: normal;
+  line-height: 30px;
   text-transform: uppercase;
 }
 
@@ -74,13 +75,19 @@ figcaption{
   line-height: 14px;
 }
 
+img.full + figcaption{
+  width: 960px;
+  margin: -40px -150px 60px;
+}
+
 a.footnote{
   display: inline-block;
   height: 16px;
   width: 16px;
+  padding: 0 !important;
   background-color: #f4a27a;
   font-family: 'Unit';
-  font-size: 11px;
+  font-size: 11px !important;
   line-height: 16px;
   text-align: center;
   color: white;
@@ -295,7 +302,7 @@ div.map{
 
 div.map.iframe{
   width: 1000px;
-  height: 600px;
+  height: 650px;
   padding: 0;
 }
 
@@ -336,6 +343,7 @@ div.map video{
 .map a{
   display: inline-block;
   text-indent: 0;
+  color: #fffefe;
   padding: 0 25px;
   font-size: 18px;
   text-transform: uppercase;
