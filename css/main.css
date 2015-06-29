@@ -234,6 +234,14 @@ div.title{
   clear: both;
 }
 
+#main-title{
+  position: relative;
+  top: 100px;
+  font-size: 64px;
+  line-height: 72px;
+  font-weight: 700;
+}
+
 h1:before{
   counter-increment: section;
   content: "PART " counter(section);

@@ -16,8 +16,10 @@
   	  </header>
   	  
   	  <div id="wrapper">
+        
       	<div class="title" id="title1" style="background-image: url(data/img/Beast_Low-ying.jpg);">
-        <h1 title="Introduction">Introduction</h1>
+          <div id="main-title">Quantifying Evolving Risk and Identifying Effective Policies for a Resilient Future</div>
+          <h1 title="Introduction">Introduction</h1>
       	</div>
       <section>
         <h2><span>Quantifying Evolving Risk and Identifying Effective Policy Actions for a Resilient Future</span></h2>
@@ -500,6 +502,7 @@
         var w = $( window ).width();
         $( "div.title" ).height( h );
         $( "h1" ).css( "top", h - 250 );
+        $( "#title1 h1").css( "top", h - 250 - $( "#main-title" ).height() );
         
         onScroll();
       }
