@@ -519,6 +519,7 @@
             if ( !frame.contentWindow.isPlaying && !frame.contentWindow.played ){
               frame.contentWindow.play();
             }
+            map.find(".play").hide();
           } else {
             // videos
             $( "video", map )[0].play();
