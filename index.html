@@ -501,8 +501,9 @@
         var h = $( window ).height() - 100;
         var w = $( window ).width();
         $( "div.title" ).height( h );
+        $( "div#title1" ).height( Math.max(h,570) );
         $( "h1" ).css( "top", h - 250 );
-        $( "#title1 h1").css( "top", h - 250 - $( "#main-title" ).height() );
+        $( "#title1 h1").css( "top", Math.max(h,570) - 250 - $( "#main-title" ).height() );
         
         onScroll();
       }
