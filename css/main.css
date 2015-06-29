@@ -59,9 +59,7 @@ cite{
   display: block;
   color: #999;
   font-family: 'Unit';
-  font-size: 14px;
   font-style: normal;
-  line-height: 30px;
   text-transform: uppercase;
 }
 
@@ -298,6 +296,7 @@ div.map{
   height: 574px;
   position: relative;
   padding: 0 20px;
+  margin-bottom: 100px;
 }
 
 div.map.iframe{
@@ -340,7 +339,7 @@ div.map video{
   text-indent: 60px;
 }
 
-.map a{
+.map .header a{
   display: inline-block;
   text-indent: 0;
   color: #fffefe;
