@@ -68,6 +68,12 @@ figure img{
   width: 100%;
 }
 
+figcaption{
+  font-family: 'Unit';
+  font-size: 12px;
+  line-height: 14px;
+}
+
 a.footnote{
   display: inline-block;
   height: 16px;
