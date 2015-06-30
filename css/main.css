@@ -400,6 +400,7 @@ iframe{
   margin: 15px 30px;
   color: #555;
   border: none;
+  font-size: 18px;
 }
 
 .play-pause:hover{
