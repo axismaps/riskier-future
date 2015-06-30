@@ -195,7 +195,11 @@ function createMap(){
 	boundary
 		.append( "path" )
 		.datum( boundaryFeature )
-		.attr( "d", path );
+		.attr( "d", path )
+		.on( "mouseover", function(){
+			d3.selectAll(".highlight").classed("highlight",false);
+				probe.style("display","none");
+		});
 
 	countries.selectAll( "path" )
 		.data( jsonData.features )
@@ -204,6 +208,7 @@ function createMap(){
 		.attr( "id", function(d){ return d.properties.ISO_A2 })
 		.attr( "d", path )
 		.on( "mouseover", function(d){
+			d3.selectAll(".highlight").classed("highlight",false);
 			d3.select(this).classed("highlight",true);
 			d3.select(this).node().parentNode.appendChild(this);
 			probe.datum(d)
@@ -224,7 +229,7 @@ function createMap(){
 			});
 		})
 		.on("mouseout",function(){
-			d3.select(this).classed("highlight",false);
+			d3.selectAll(".highlight").classed("highlight",false);
 			probe.style("display","none");
 		})
 

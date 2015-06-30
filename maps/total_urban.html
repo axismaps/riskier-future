@@ -199,7 +199,11 @@ function createMap(){
 	boundary
 		.append( "path" )
 		.datum( boundaryFeature )
-		.attr( "d", path );
+		.attr( "d", path )
+		.on( "mouseover", function(){
+			d3.selectAll(".highlight").classed("highlight",false);
+				probe.style("display","none");
+		});
 
 	countries.selectAll( "path" )
 		.data( jsonData.features )
@@ -215,6 +219,7 @@ function createMap(){
 			return "translate(" + projection(d.geometry.coordinates).toString() + ")";
 		})
 		.on( "mouseover", function(d){
+			d3.selectAll("highlight").classed("highlight",false);
 			d3.select(this).classed("highlight",true);
 			probe.datum(d)
 				.html(
@@ -235,7 +240,7 @@ function createMap(){
 			});
 		})
 		.on("mouseout",function(){
-			d3.select(this).classed("highlight",false);
+			d3.selectAll("highlight").classed("highlight",false);
 			probe.style("display","none");
 		})
 
