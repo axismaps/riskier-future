@@ -557,6 +557,7 @@ function hideFlag(){
 }
 var isPlaying, played;
 function play(){
+	clearInterval(animationInterval);
 	animationInterval = setInterval( nextFrame, duration );
 	isPlaying = true;
 	played = true;

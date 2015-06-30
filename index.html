@@ -525,9 +525,11 @@
                if ( !locked ) frame.contentWindow.play();
             }
             map.find(".play").hide();
+            pauseAll( frame );
           } else {
             // videos
             if ( !locked ) $( "video", map )[0].play();
+            pauseAll( $( "video", map )[0] );
           }
           locked = true;
         } else {
@@ -626,6 +628,7 @@
           map.find( "video" ).on( "timeupdate", function(){ 
             map.find(".slider").slider( "value", 100*this.currentTime/this.duration );
           }).on( "play", function(){
+            pauseAll(this);
             map.find( ".play" ).hide();
             map.find( ".play-pause i" ).removeClass( "icon-play" ).addClass( "icon-pause" );
           }).on( "pause", function(){
@@ -644,10 +647,13 @@
               video.pause();
           });
           map.find( ".play" ).click(function(){
-            if ( map.find( "video" ).length )
+            if ( map.find( "video" ).length ){
               map.find( "video" )[0].play();
-            else 
+            } else {
               map.find("iframe")[0].contentWindow.play();
+              pauseAll(map.find("iframe")[0]);
+            }
+              
             $(this).hide();
           });
         });
@@ -692,6 +698,19 @@
             .on( "canplay", function(){ this.play() });
           map.find(".play").show();
         }
+      }
+
+      function pauseAll(except){
+        $( "video" ).each(function(){
+          if ( this != except ){
+            this.pause();
+          }
+        });
+        $( "iframe" ).each(function(){
+          if ( this != except ){
+            this.contentWindow.pause();
+          }
+        });
       }
       
     </script>
