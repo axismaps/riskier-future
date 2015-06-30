@@ -159,7 +159,7 @@ var boundaryFeature = {type:"Feature",geometry:{
 }};
 
 queue()
-	.defer( d3.json, "../data/json/admin0.geojson" )
+	.defer( d3.json, "../data/json/admin0_ms1.json" )
 	.defer( d3.json, "../data/json/disputed.geojson" )
 	.defer( d3.csv, "../data/csv/percent_urban.csv" )
 	.defer( d3.csv, "../data/csv/urban_total.csv" )
