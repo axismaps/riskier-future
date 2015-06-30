@@ -516,19 +516,22 @@
             prev = $( $( ".title" )[ part - 2 ] ),
             map = getActiveElement( ".map", s + 100 ),
             mapOffset = map.offset().top;
-            
-        if( mapOffset < s + 80 && mapOffset > s + 60 ) {
+         
+        if( mapOffset > s + 60  && ( mapOffset + map.height() < s + window.innerHeight || ( mapOffset < s + 80 && map.height() > window.innerHeight ) ) ) {
+          
           if( map.hasClass( "iframe" ) ){
             var frame = $( "iframe:visible", map )[0];
             if ( !frame.contentWindow.isPlaying && !frame.contentWindow.played ){
-              frame.contentWindow.play();
+               if ( !locked ) frame.contentWindow.play();
             }
             map.find(".play").hide();
           } else {
             // videos
-            $( "video", map )[0].play();
+            if ( !locked ) $( "video", map )[0].play();
           }
+          locked = true;
         } else {
+          locked = false;
           if( map.hasClass( "iframe" ) ){
             $( "iframe", map ).each( function(){
               this.contentWindow.played = false;
