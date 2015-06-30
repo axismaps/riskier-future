@@ -265,10 +265,12 @@ function createMap(){
 			height: 75
 		})
 		.on( "click", function(){
+			d3.event.stopPropagation();
 			var x = d3.mouse(this)[0],
 				yearWidth = (width-230)/(maxYear-minYear),
 				yearDelta = Math.round( x / yearWidth );
 			window.location.hash = yearDelta;
+			if ( !isPlaying ) play();
 		});
 	
 	
