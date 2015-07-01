@@ -514,17 +514,15 @@
             part = $( ".title" ).index( title ) + 1,
             next = $( $( ".title" )[ part ] ),
             prev = $( $( ".title" )[ part - 2 ] ),
-            map = getActiveElement( ".map", s + 100 ),
+            map = getActiveElement( ".map", s + window.innerHeight ),
             mapOffset = map.offset().top;
-         
-        if( mapOffset > s + 60  && ( mapOffset + map.height() < s + window.innerHeight || ( mapOffset < s + 80 && map.height() > window.innerHeight ) ) ) {
+        if( mapOffset > s + 50  && ( mapOffset + map.height() < s + window.innerHeight || ( mapOffset < s + 80 && map.height() > window.innerHeight - 50) ) ) {
           
           if( map.hasClass( "iframe" ) ){
             var frame = $( "iframe:visible", map )[0];
             if ( !frame.contentWindow.isPlaying && !frame.contentWindow.played ){
-               if ( !locked ) frame.contentWindow.play();
+               if ( !locked ) map.find(".play").click();
             }
-            map.find(".play").hide();
             pauseAll( frame );
           } else {
             // videos

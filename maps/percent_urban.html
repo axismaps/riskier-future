@@ -563,6 +563,10 @@ function play(){
 	played = true;
 }
 function nextFrame(){
+	if ( isPlaying ){
+		clearInterval(animationInterval);
+		animationInterval = setInterval( nextFrame, duration );
+	}
 	if ( currentYear < minYear ){
 		currentYear++;
 		d3.select( "#progress" )
