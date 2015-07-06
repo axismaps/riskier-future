@@ -1,0 +1,70 @@
+.frame{ position: relative; font-family: "Unit";} 
+
+#total-urban path{ stroke: #ccc; fill: #eee;}
+
+#total-urban #symbols path{ stroke: #999;fill-opacity: .7;}
+
+#total-urban #symbols g.highlight path{ stroke: #333; }
+
+#total-urban #legend circle{ fill: rgba(255,255,255,.5); stroke: #999;}
+
+.frame .null{ fill: #eee; }
+
+.frame #boundary path{ fill: #fff; stroke:none;}
+
+.frame #year{ font-size: 72px;}
+
+.frame #timeline line{
+  stroke: #999;
+}
+
+.frame #progress{ fill: rgba(0,0,0,.25); }
+
+#total-urban #axis path{ fill: none;}
+
+#total-urban path.urban, #total-urban rect.urban{ stroke: none; fill: #ce1b1e; }
+
+#total-urban path.rural, #total-urban rect.rural{ stroke: none; fill:white;}
+
+.frame #axis line{
+  stroke: rgba(255,255,255,.2);
+}
+
+.frame #axis g.tick line{
+  stroke-dasharray: 3 3;
+}
+
+.frame #axis path{ stroke: none;}
+
+.frame #axis text{ font-size: 16px;}
+
+.frame #chart-title{ font-size: 18px; }
+
+.frame #chart text, .frame #timeline text{ fill: white;}
+
+.frame #probe{
+  position: absolute;
+  color: #333;
+  display: none;
+  background: white;
+  border: 1px solid #ccc;
+  max-width: 250px;
+}
+
+.frame #probe p{
+  margin: 10px;
+}
+
+.frame #probe p:first-child{
+  font-weight: bold;
+}
+
+#percent-urban path{ stroke: #ccc;}
+
+#percent-urban path.highlight{ stroke: #333; }
+
+#percent-urban #chart path{ fill: none;}
+
+#percent-urban #chart path.urban, #percent-urban line.urban{ stroke: none; fill: #ce1b1e; }
+
+#percent-urban rect.rural, #percent-urban line.rural{ stroke: none; fill: #666;}
