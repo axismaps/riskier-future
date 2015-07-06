@@ -243,6 +243,16 @@ function createMap(){
 			d3.selectAll("highlight").classed("highlight",false);
 			probe.style("display","none");
 		})
+		.sort(function(a,b){
+      try{
+	      var aVal = parseInt(urbanTotal[ a.properties.code ][maxYear]) + parseInt(ruralTotal[ a.properties.code ][maxYear]);
+		  var bVal = parseInt(urbanTotal[ b.properties.code ][maxYear]) + parseInt(ruralTotal[ b.properties.code ][maxYear]); 
+      }
+      catch( e ) {
+	      return 0;
+      }
+      return  bVal - aVal;
+    })
 
 	var probe = d3.select( "body" ).append( "div" ).attr( "id","probe" );
 	var format = d3.format(",");
@@ -275,55 +285,28 @@ function createMap(){
 	
 	
 
-	goToFrame( minYear );
+	goToFrame( currentYear );
 	//play();
 
 }
 var pie = d3.layout.pie().sort(null);
 function updateSymbols( fieldName, tween ){
 	
-	//pie.value( function(d){ return })
-
 	propSymbols.selectAll( "g" )
 		.each( function(d){
 			if ( !d.properties.data ) return;
 			var total = parseInt(urbanTotal[ d.properties.code ][fieldName]) + parseInt(ruralTotal[ d.properties.code ][fieldName]);
 			if ( isNaN(total) ) return;
-			var data = [ urbanTotal[ d.properties.code ][fieldName]/total, ruralTotal[ d.properties.code ][fieldName]/total ];
+			var data = [ Math.round(100*urbanTotal[ d.properties.code ][fieldName]/total)/100, Math.round(100*ruralTotal[ d.properties.code ][fieldName]/total)/100 ];
 			
-			var r = symbolScale( total );
-			//console.log(data,r)
+			var r = Math.round( 10 * symbolScale( total ) ) / 10;
 			var arc = d3.svg.arc().outerRadius(r);
-			//console.log(d.properties.code)
-		//	console.log(data)
 			d3.select(this)	
 				.selectAll( "path" )
 				.data( pie( data ) )
-				//.transition()
-				//.ease( "linear" )
-				//.duration( tween ? duration : 0  )
 				.attr( "d",arc )
-		})
-		.sort(function(a,b){
-	      try{
-		      var aVal = parseInt(urbanTotal[ a.properties.code ][fieldName]) + parseInt(ruralTotal[ a.properties.code ][fieldName]);
-			  var bVal = parseInt(urbanTotal[ b.properties.code ][fieldName]) + parseInt(ruralTotal[ b.properties.code ][fieldName]); 
-	      }
-	      catch( e ) {
-		      return 0;
-	      }
-	      return  bVal - aVal;
-	    })
-		// .datum( [ urbanTotal[ d.properties.code ][fieldName], ruralTotal[ d.properties.code ][fieldName] ] )
-		// .selectAll("path")
-		// .data(pie)
-		// .transition()
-		// .ease( "linear" )
-		// .duration( tween ? duration : 0 )
-		// .attr( "d", function(d){ 
-		// 	if ( !d.properties.data ) return "M0,0";
-		// 	return d3.svg.arc().outerRadius(symbolScale( d.properties.data[fieldName] ))(d);//symbolScale( d.properties.data[fieldName] );
-		//});
+		});
+		
 	if ( tween ) setTimeout( function(){ d3.select( "#year" ).text( fieldName ) }, duration );
 	else d3.select( "#year" ).text( fieldName )
 
