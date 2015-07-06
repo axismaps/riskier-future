@@ -7,6 +7,77 @@
 		<link rel="stylesheet" href="lib/jquery-ui.min.css" />
 		<link rel="stylesheet" href="css/fonts.css" />
 		<link rel="stylesheet" href="css/main.css" />
+
+    <script src="lib/d3.v3.min.js"></script>
+    <script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
+    <script src="http://d3js.org/queue.v1.min.js"></script>
+    <script src="lib/underscore-min.js"></script>
+
+    <style>
+      #total-urban{ position: relative; font-family: "Unit";} 
+      #total-urban path{ stroke: #ccc; fill: #eee;}
+      #total-urban #symbols path{ stroke: #999;fill-opacity: .7;}
+      #total-urban #symbols g.highlight path{ stroke: #333; }
+      #total-urban #legend circle{ fill: rgba(255,255,255,.5); stroke: #999;}
+      #total-urban .null{ fill: #eee; }
+      #total-urban #boundary path{ fill: #fff; stroke:none;}
+      #total-urban #year{ font-size: 72px;}
+      #total-urban #timeline line{
+        stroke: #999;
+      }
+      #total-urban #progress{ fill: rgba(0,0,0,.25); }
+      #total-urban #axis path{ fill: none;}
+      #total-urban path.urban, #total-urban rect.urban{ stroke: none; fill: #ce1b1e; }
+      #total-urban path.rural, #total-urban rect.rural{ stroke: none; fill:white;}
+      #total-urban #axis line{
+        stroke: rgba(255,255,255,.2);
+      }
+      #total-urban #axis g.tick line{
+        stroke-dasharray: 3 3;
+      }
+      #total-urban #axis path{ stroke: none;}
+      #total-urban #axis text{ font-size: 16px;}
+      #total-urban #chart-title{ font-size: 18px; }
+      #total-urban header{
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        left: 0;
+        height: 65px;
+        background-color: rgba(0,0,0,.5);
+      }
+      #total-urban header h1{
+        color: white;
+        line-height: 65px;
+        margin: 0;
+        font-weight: normal;
+        font-size: 40px;
+        padding: 0 25px;
+      }
+      #total-urban header svg{
+        float: right;
+        margin: 5px;
+      }
+      #total-urban header img{
+        float: right;
+        margin: 10px;
+      }
+      #total-urban #chart text, #total-urban #timeline text{ fill: white;}
+      #total-urban #probe{
+        position: absolute;
+        color: #333;
+        display: none;
+        background: white;
+        border: 1px solid #ccc;
+        max-width: 250px;
+      }
+      #total-urban #probe p{
+        margin: 10px;
+      }
+      #total-urban #probe p:first-child{
+        font-weight: bold;
+      }
+    </style>
     
     <meta name="viewport" content="width=device-width" />
 	</head>
@@ -121,7 +192,7 @@
           <div class="header">
             <span>Global Urban Population: 1960-2013</span><a class="active" id="total_urban">Total Urban</a><a id="percent_urban">Percent Urban</a>
           </div>
-          <iframe src="maps/total_urban.html#0" name="total_urban" scrolling="no"></iframe>
+          <!--iframe src="maps/total_urban.html#0" name="total_urban" scrolling="no"></iframe-->
           <iframe src="maps/percent_urban.html#0" name="percent_urban" scrolling="no" style="display: none"></iframe>
           <div class="play"><i class="fa icon-play-circled2"></i></div>
           <figcaption><b>Figure 5.</b> Global urban population, 1960–2013. <cite>Data source: World Development Indicators, World Bank. <a class="footnote" id="fn39">39</a></cite></figcaption>
@@ -519,10 +590,10 @@
         if( mapOffset > s + 50  && ( mapOffset + map.height() < s + window.innerHeight || ( mapOffset < s + 80 && map.height() > window.innerHeight - 50) ) ) {
           
           if( map.hasClass( "iframe" ) ){
-            var frame = $( "iframe:visible", map )[0];
-            if ( !frame.contentWindow.isPlaying && !frame.contentWindow.played ){
+            var frame = $( ".frame:visible", map )[0];
+            //if ( !frame.isPlaying && !frame.contentWindow.played ){
                if ( !locked ) map.find(".play").click();
-            }
+            //}
             pauseAll( frame );
           } else {
             // videos
@@ -533,9 +604,9 @@
         } else {
           locked = false;
           if( map.hasClass( "iframe" ) ){
-            $( "iframe", map ).each( function(){
-              this.contentWindow.played = false;
-            });
+            // $( "iframe", map ).each( function(){
+            //   this.contentWindow.played = false;
+            // });
           }
          // map.find(".play").show();
         }
@@ -648,8 +719,8 @@
             if ( map.find( "video" ).length ){
               map.find( "video" )[0].play();
             } else {
-              map.find("iframe")[0].contentWindow.play();
-              pauseAll(map.find("iframe")[0]);
+              map.find(".frame").trigger('click');
+            //  pauseAll(map.find("iframe")[0]);
             }
               
             $(this).hide();
@@ -684,7 +755,7 @@
       function loadMap( map, id ) {
         if( map.hasClass( "iframe" ) ) {
           $( "iframe" ).hide().each(function(){
-            this.contentWindow.reset();
+          //  this.contentWindow.reset();
           });
           var frame = $( "iframe[ name='" + id + "']" ).show();
           if ( !frame[0].contentWindow.isPlaying ) frame[0].contentWindow.play();
@@ -704,12 +775,544 @@
             this.pause();
           }
         });
-        $( "iframe" ).each(function(){
-          if ( this != except ){
-            this.contentWindow.pause();
-          }
-        });
+        // $( "iframe" ).each(function(){
+        //   if ( this != except ){
+        //     this.contentWindow.pause();
+        //   }
+        // });
       }
+
+      (function(){
+        var width = 1000,
+           height = 560;
+
+        var frame = d3.select(".iframe")
+          .insert("div",".play")
+          .attr("class","frame")
+          .attr("id","total-urban");
+
+        var svg = frame
+          .append( "svg" )
+          .attr( "class", "YlGnBu" )
+          .attr( "width", width )
+          .attr( "height", height );
+
+        var boundary = svg.append("g")
+            .attr( "id", "boundary" );
+
+        var countries = svg.append( "g" )
+          .attr( "id", "countries" );
+
+        var propSymbols = svg.append( "g" )
+          .attr( "id", "symbols" );
+
+        var mask = svg.append( "rect" )
+          .attr({
+            x: 0,
+            y: height-105,
+            width: width,
+            height: 105
+          })
+          .attr( "fill", "rgba(0,0,0,.5)" );
+
+        var projection = d3.geo.times()
+          .center([0,5])
+          .rotate( [-25,0])
+            .scale(250)
+            .translate([width / 2, height / 2])
+            .precision(.1);
+
+        var path = d3.geo.path()
+          .projection( projection );
+
+        var duration = 150;
+
+        var jsonData,
+          csvData,
+          centroids;
+
+        var urbanTotal,
+          ruralTotal;
+
+        var minYear = 1960,
+          maxYear = 2013,
+          currentYear = 1960;
+
+        var animationInterval;
+
+        var boundaryFeature = {type:"Feature",geometry:{
+          type: "Polygon",
+          coordinates: [[
+            [-180,89.99],
+            [180,89.99],
+            [180,-89.99],
+            [-180,-89.99],
+            [-180,89.99]
+          ]]
+        }};
+
+       // d3.select( "header" ).style( "width", width + "px" );
+
+        var symbolScale = d3.scale.sqrt()
+          .domain( [1000000,1000000000] )
+          .range( [3,40] );
+
+
+        queue()
+          .defer( d3.json, "data/json/admin0_ms1.json" )
+          .defer( d3.json, "data/json/disputed.geojson" )
+          .defer( d3.json, "data/json/centroids.geojson" )
+          .defer( d3.csv, "data/csv/percent_urban.csv" )
+          .defer( d3.csv, "data/csv/urban_total.csv" )
+          .defer( d3.csv, "data/csv/rural_total.csv" )
+          .await( function( err, json, disp, cent, csv, urban, rural ){
+            jsonData = json;
+            jsonData.features = jsonData.features.concat( disp.features );
+            csvData = csv;
+            centroids = cent;
+            urbanTotal = _.indexBy( urban, "Country Code" );
+            ruralTotal = _.indexBy( rural, "Country Code" );
+            createMap();
+
+            window.onhashchange = function(){
+              var frame = window.location.hash.match(/\d+/)[0];
+              goToFrame( minYear + parseInt(frame) );
+            }
+
+            frame.on( "click", function(){
+              if ( !isPlaying ) play();
+              else pause();
+            })
+          });
+
+        function createMap(){
+          _.each( urbanTotal, function(row){
+            _.each( centroids.features, function(f){
+              if ( f.properties.code == row["Country Code"] ){
+                f.properties.data = row;
+              }
+            });
+          });
+
+          boundary
+            .append( "path" )
+            .datum( boundaryFeature )
+            .attr( "d", path )
+            .on( "mouseover", function(){
+              frame.selectAll(".highlight").classed("highlight",false);
+                probe.style("display","none");
+            });
+
+          countries.selectAll( "path" )
+            .data( jsonData.features )
+            .enter()
+            .append( "path" )
+            .attr( "d", path );
+
+          var symb = propSymbols.selectAll( "g" )
+            .data( centroids.features )
+            .enter()
+            .append( "g" )
+            .attr( "transform", function(d){
+              return "translate(" + projection(d.geometry.coordinates).toString() + ")";
+            })
+            .on( "mouseover", function(d){
+              frame.selectAll("highlight").classed("highlight",false);
+              d3.select(this).classed("highlight",true);
+              probe.datum(d)
+                .html(
+                  "<p>" + d.properties.WB_ADM0_NA + "</p>" +
+                  "<p>Urban: " + format(parseInt(urbanTotal[ d.properties.code ][currentYear >= minYear ? currentYear : maxYear])) + "</p>" +
+                  "<p>Rural: " + format(parseInt(ruralTotal[ d.properties.code ][currentYear >= minYear ? currentYear : maxYear])) + "</p>"
+                )
+                .style("display","block");
+            })
+            .on("mousemove",function(d){
+              var t = d3.event.clientY - probe.node().offsetHeight - 5;
+              if ( t <= 0 ) t+= probe.node().offsetHeight + 10;
+              var l = d3.event.clientX + 5;
+              if ( l + probe.node().offsetWidth > width ) l -= probe.node().offsetWidth + 10;
+              probe.style({
+                top: t,
+                left: l
+              });
+            })
+            .on("mouseout",function(){
+              frame.selectAll("highlight").classed("highlight",false);
+              probe.style("display","none");
+            })
+            .sort(function(a,b){
+              try{
+                var aVal = parseInt(urbanTotal[ a.properties.code ][maxYear]) + parseInt(ruralTotal[ a.properties.code ][maxYear]);
+              var bVal = parseInt(urbanTotal[ b.properties.code ][maxYear]) + parseInt(ruralTotal[ b.properties.code ][maxYear]); 
+              }
+              catch( e ) {
+                return 0;
+              }
+              return  bVal - aVal;
+            })
+
+          var probe = frame.append( "div" ).attr( "id","probe" );
+          var format = d3.format(",");
+
+          symb.append( "path" ).attr("class","urban")
+          symb.append( "path" ).attr("class","rural");
+
+          createLegend();
+          createChart();
+          createTimeline();
+
+          svg.append( "rect" )
+            .attr( "id", "interaction" )
+            .attr( "transform", "translate(180," + (height-75) + ")" )
+            .attr( "fill", "rgba(0,0,0,0)" )
+            .attr({
+              x: 0,
+              y: 0,
+              width: width-230,
+              height: 75
+            })
+            .on( "click", function(){
+              d3.event.stopPropagation();
+              var x = d3.mouse(this)[0],
+                yearWidth = (width-230)/(maxYear-minYear),
+                yearDelta = Math.round( x / yearWidth );
+              window.location.hash = yearDelta;
+              if ( !isPlaying ) play();
+            });
+          
+          
+
+          goToFrame( currentYear );
+          //play();
+
+        }
+        var pie = d3.layout.pie().sort(null);
+        function updateSymbols( fieldName, tween ){
+          
+          propSymbols.selectAll( "g" )
+            .each( function(d){
+              if ( !d.properties.data ) return;
+              var total = parseInt(urbanTotal[ d.properties.code ][fieldName]) + parseInt(ruralTotal[ d.properties.code ][fieldName]);
+              if ( isNaN(total) ) return;
+              var data = [ Math.round(100*urbanTotal[ d.properties.code ][fieldName]/total)/100, Math.round(100*ruralTotal[ d.properties.code ][fieldName]/total)/100 ];
+              
+              var r = Math.round( 10 * symbolScale( total ) ) / 10;
+              var arc = d3.svg.arc().outerRadius(r);
+              d3.select(this) 
+                .selectAll( "path" )
+                .data( pie( data ) )
+                .attr( "d",arc )
+            });
+            
+          if ( tween ) setTimeout( function(){ frame.select( "#year" ).text( fieldName ) }, duration );
+          else frame.select( "#year" ).text( fieldName )
+
+          frame.select("#probe")
+            .html(function(d){
+              if ( !d ) return "";
+              return "<p>" + d.properties.WB_ADM0_NA + "</p><p>Urban: " + d3.format(",")(parseInt(urbanTotal[ d.properties.code ][currentYear])) + "</p><p>Rural: " + d3.format(",")(parseInt(ruralTotal[ d.properties.code ][currentYear])) + "</p>"
+            })
+        }
+
+        function createLegend(){
+          var sizes = [10000000,100000000,250000000,500000000,1000000000];
+          var max = symbolScale( sizes[sizes.length-1] );
+          var legendLabels = frame.select( "header" )
+            .append ( "svg" )
+            .attr( "width", 40 )
+            .attr( "height", max * 2 + 10 )
+          var legend = frame.select( "header" )
+            .append ( "svg" )
+            .attr( "width", max )
+            .attr( "height", max * 2 + 10 )
+            .append( "g" )
+            .attr( "id", "legend" );
+          for ( var i= sizes.length-1; i>=0; i-- ){
+            legend.append( "circle" )
+              .attr( "cx", max )
+              .attr( "cy", max * 2 - symbolScale( sizes[i] ) + 5 )
+              .attr( "r", symbolScale( sizes[i] ) )
+          }
+          
+          for ( var i in sizes ){
+            legendLabels.append( "text" )
+              .text( sizes[i] >= 1000000000 ? sizes[i]/1000000000 + "b" : sizes[i]/1000000 + "m" )
+              .attr( "font-size", 12 )
+              .attr( "dominant-baseline", "middle" )
+              .attr( "x", 0)
+              .attr( "y", 2* (max - symbolScale( sizes[i] )) + 5 )
+          }
+        }
+
+        function createTimeline(){
+          var timeline = svg.append("g")
+            .attr( "id", "timeline" )
+            .attr( "transform", "translate(180," + (height-75) + ")" );
+          
+          timeline.append( "rect" )
+            .attr( "id", "progress" )
+            .attr( "x", 0 )
+            .attr( "y", 0 )
+            .attr( "height", 75);
+          
+          var yearWidth = (width-230)/(maxYear-minYear);
+          for ( var year = minYear; year <= maxYear; year++ ){
+            var bigTick = year == minYear || year == maxYear || year % 10 == 0,
+              x = (year-minYear)*yearWidth;
+            if ( !bigTick ) continue;
+            timeline.append( "line" )
+              .attr("x1", x )
+              .attr("y1", 0 )
+              .attr("x2", x )
+              .attr("y2", bigTick ? 75 : 5 );
+            if ( bigTick && 
+              ( Math.abs( year-minYear ) > 3 && Math.abs( maxYear - year ) > 3 || year == maxYear )  ){
+              timeline.append( "text" )
+                .attr("x",x)
+                .attr("y",-5)
+                .attr("text-anchor","middle")
+                .attr("font-size",24)
+                .text(year)
+            }
+          }
+
+          timeline.append( "text" )
+            .attr( "id", "year" )
+            .attr( "x", -170 )
+            .attr( "y", 45 )
+            .attr( "dominant-baseline", "middle")
+        }
+
+        function updateTimeline( tween ){
+          var yearWidth = (width-230)/(maxYear-minYear);
+          if ( tween ){
+            frame.select( "#progress" )
+              .transition()
+              .duration( tween ? duration : 10 )
+              .ease( "linear" )
+              .attr( "width", (currentYear-minYear) * yearWidth );
+          } else {
+            frame.select( "#progress" )
+              .attr( "width", (currentYear-minYear) * yearWidth );
+          }
+        }
+
+        function createChart(){
+          svg.append( "g" )
+            .attr( "id", "chart" )
+            .attr( "transform", "translate(180," + (height-75) + ")" );
+          drawChart( "WLD" );
+        }
+
+        function drawChart( id ){
+          var urban = urbanTotal[ id ];
+          var rural = ruralTotal[ id ];
+
+
+          var max = ( parseInt(urban[maxYear]) + parseInt(rural[maxYear]) ) * 1.05;
+          var chartScale = d3.scale.linear()
+            .domain( [0,max] )
+            .range( [75,0] );
+          var yearWidth = (width-230)/(maxYear-minYear);
+          var dUrban = "",
+            dRural = "";
+          frame.selectAll( "#chart path" ).remove();
+          frame.select( "#chart rect" ).remove();
+          frame.select( "#chart g" ).remove();
+          for ( year=minYear; year<=maxYear; year++ ){
+            if ( year == minYear ){
+              command = "M";
+            } else {
+              command = "L";
+            }
+          
+            dUrban += command + Math.round( (year-minYear)*yearWidth ) + " " + chartScale(urban[year]);
+            dRural += command + Math.round( (year-minYear)*yearWidth ) + " " + chartScale(parseInt(urban[year]) + parseInt(rural[year]))
+          }
+          dUrban += "V" + chartScale.range()[0] + "H0Z";
+          dRural += "V" + chartScale.range()[0] + "H0Z";
+
+          frame.select( "#chart" )
+            .append( "path" )
+            .attr( "class", "rural" )
+            .attr( "d", dRural )
+
+          frame.select( "#chart" )
+            .append( "path" )
+            .attr( "class", "urban" )
+            .attr( "d", dUrban )
+          
+
+          var axis = d3.svg.axis()
+            .scale( chartScale )
+            .orient( "right" )
+            .ticks(3)
+            .innerTickSize( (width-230) )
+            .outerTickSize( (width-230) )
+            .tickFormat( function(d){
+              if ( d ==0 ) return "";
+              if ( d >= 1000000000 ) return d / 1000000000 + "b"
+              return d/1000000 + "m"
+            });
+
+          frame.select( "#chart" )
+            .append( "g" )
+            .attr( "id", "axis" )
+            .call( axis );
+
+          frame.selectAll( ".tick text" ).attr( "dy", 0 );
+
+          frame.select( "#chart" )
+            .append( "rect" )
+            .attr({
+              x: -25,
+              y: -25,
+              width: 15,
+              height: 15,
+              class: "urban"
+            });
+          frame.select( "#chart" )
+            .append( "text" )
+            .text( "urban" )
+            .attr({
+              x: -5,
+              y: -10
+            });
+
+          frame.select( "#chart" )
+            .append( "rect" )
+            .attr({
+              x: 50,
+              y: -25,
+              width: 15,
+              height: 15,
+              class: "rural"
+            });
+
+          frame.select( "#chart" )
+            .append( "text" )
+            .text( "rural" )
+            .attr({
+              x: 70,
+              y: -10
+            });
+
+          frame.select( "#chart" )
+            .append( "text" )
+            .attr( "id", "chart-title" )
+            .attr( "x", -175 )
+            .attr( "y", -10 )
+            .text( urban["Country Name"] + " Population" );
+        }
+
+        function showFlag(){
+          var chartScale = d3.scale.linear()
+            .domain( [0,100] )
+            .range( [75,0] );
+          var yearWidth = (width-230)/(maxYear-minYear);
+
+          frame.select( "#chart" )
+            .append( "line" )
+            .attr({
+              x1: (2007-minYear) * yearWidth,
+              x2: (2007-minYear) * yearWidth,
+              y1: chartScale(50),
+              y2: -130
+            })
+            .attr( "stroke", "black" )
+            .attr( "class", "flag" )
+          
+          frame.select( "#chart" )
+            .append( "rect" )
+            .attr({
+              x: (2007-minYear) * yearWidth,
+              y: -130,
+              width: 140,
+              height: 85,
+              fill: "rgba(0,0,0,.75)"
+            })
+            .attr( "class", "flag" )
+
+          var flag = frame.select("#chart")
+            .append( "text" )
+            .attr({
+              x: (2007-minYear) * yearWidth + 5,
+              y: -109
+            })
+            .attr( "class", "flag" )
+          flag.append( "tspan" )
+            .text( "2007" )
+            .attr( "font-size", "1.4em")
+            
+          flag.append( "tspan" )
+            .text( "More than 50% of the ")
+            .attr( "dy", 20)
+            .attr("x",(2007-minYear) * yearWidth + 5)
+            .attr( "font-size", "14px")
+          flag.append( "tspan" )
+            .text( "world now lives in")
+            .attr( "dy", 16)
+            .attr("x",(2007-minYear) * yearWidth + 5)
+            .attr( "font-size", "14px")
+          flag.append( "tspan" )
+            .text( "urban areas.")
+            .attr( "dy", 16)
+            .attr("x",(2007-minYear) * yearWidth + 5)
+            .attr( "font-size", "14px")
+        }
+
+        function hideFlag(){
+          frame.selectAll( ".flag" ).remove();
+        }
+        var isPlaying, played;
+        function play(){
+          clearInterval(animationInterval);
+          isPlaying = true;
+          played = true;
+          animationInterval = setInterval( nextFrame, duration );
+        }
+        function nextFrame(){
+          if ( isPlaying ){
+            clearInterval(animationInterval);
+            animationInterval = setInterval( nextFrame, duration );
+          }
+          if ( currentYear < minYear ){
+            currentYear++;
+            frame.select( "#progress" )
+              .attr( "width", 0 );
+            return;
+          }
+          goToFrame( currentYear + 1 );
+        }
+        function goToFrame( frame ){
+          currentYear = frame;
+          if ( currentYear > maxYear ){
+            currentYear = minYear-1;
+            pause();
+            isPlaying = false;
+            return;
+          }
+          updateSymbols( currentYear, false );
+          updateTimeline( false );
+          if ( currentYear == 2007 ){
+            pause();
+            setTimeout( showFlag, duration );
+            setTimeout( play, duration + 2500 );
+          } else {
+            hideFlag();
+          }
+        }
+        function pause(){
+          clearInterval(animationInterval);
+          isPlaying = false;
+        }
+        function reset(){
+          pause();
+          isPlaying = false;
+          goToFrame(minYear);
+        }
+      })();
       
     </script>
 	</body>
