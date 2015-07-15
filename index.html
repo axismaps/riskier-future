@@ -470,7 +470,7 @@
           $( ".footnote-close" ).remove();
           window.clearTimeout( footnoteTimer );
           var id = parseInt( $(this).attr("id").replace( "fn", "" ) ),
-            fn = $( "p.footnote" ).eq( id-1 ).clone()
+            fn = $( "p.footnote" ).eq( id - 1 ).clone()
               .addClass( "hover" )
               .on( 'mouseover', function(){
                 window.clearTimeout( footnoteTimer );
@@ -481,7 +481,10 @@
                   $( ".footnote-close" ).remove();
                 }, 500 );
               })
-              .appendTo( "#wrapper" );
+          
+          fn.children( 'a' ).text( fn.children( 'a' ).text().replace( /^(.{40}).*/g, "$1..." ) );
+            
+          fn.appendTo( "#wrapper" );
           fn.css( "left", $(this).offset().left + 400 > window.innerWidth ? $(this).offset().left - fn.width() - 25 : $(this).offset().left + 25 )
             .css( "top", $(this).offset().top - fn.height() - 35 < $("body").scrollTop() + 50 ? $(this).offset().top + 10 : $(this).offset().top - fn.height() - 35 );
         }).on( "mouseout", function(){
