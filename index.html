@@ -490,8 +490,8 @@
         $( ".menu" ).mouseover( function() {
           $( ".dropdown" ).stop().slideDown();
         });
-        $( ".menu, .dropdown" ).mouseout( function() {
-          $( ".dropdown" ).stop().slideUp();
+        $( ".menu" ).mouseleave( function() {
+          $( ".dropdown" ).stop().slideUp().scrollTop(0);
         });
         
         //for tablets
@@ -553,6 +553,7 @@
         $( "div#title1" ).height( Math.max(h,570) );
         $( "h1" ).css( "top", h - 250 );
         $( "#title1 h1").css( "top", Math.max(h,570) - 250 - $( "#main-title" ).height() );
+        $( ".dropdown" ).css( "height", Math.min(h, $( ".dropdown" ).height() ) );
         
         onScroll();
       }
