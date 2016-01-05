@@ -538,6 +538,7 @@
           }, 500 );
         }).on( "click", function(e){
           e.preventDefault();
+          var id = $(this).attr('id');
           var fn = $( $(this).attr("href") )
             .css( "background-color", "rgba(1, 155, 139, 0.2)" );
           setTimeout( function(){
@@ -546,6 +547,15 @@
           $( "html, body" ).scrollTop( fn.offset().top - 50 );
           $( "p.footnote.hover" ).remove();
           $( ".footnote-close" ).remove();
+          
+          $( '<a />' )
+            .addClass('jump-back-button')
+            .html('<i class="fa icon-up-open"></i>')
+            .appendTo(fn)
+            .on( 'click touchstart', function() {
+              $( "html, body" ).scrollTop( $( '#' + id ).offset().top - 60 );
+              $(this).remove();
+            });
         });
       });
       

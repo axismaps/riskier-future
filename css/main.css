@@ -147,6 +147,15 @@ a:not( .footnote ) {
   text-decoration: underline;
 }
 
+.footnote .jump-back-button {
+  float: right;
+}
+
+.footnote .jump-back-button:hover {
+  cursor: pointer;
+  text-decoration: none;
+}
+
 /* HEADER */
 
 header{
