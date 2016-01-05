@@ -501,12 +501,15 @@
         });
         $( 'body' ).on( 'touchstart', function(){
           $( ".dropdown" ).stop().slideUp();
+          if( $("p.footnote.hover").is(":visible") ) {
+            $( "p.footnote.hover" ).remove();
+          }
         });
         
 
         $( "a.footnote" ).attr("href",function(){
           return "#footnote" + $(this).attr("id").replace( "fn", "" );
-        }).mouseover(function(){
+        }).on( "mouseover touchstart", function(){
           $( "p.footnote.hover" ).remove();
           $( ".footnote-close" ).remove();
           window.clearTimeout( footnoteTimer );
