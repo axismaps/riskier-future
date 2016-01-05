@@ -556,7 +556,6 @@
         $( "div#title1" ).height( Math.max(h,570) );
         $( "h1" ).css( "top", h - 250 );
         $( "#title1 h1").css( "top", Math.max(h,570) - 250 - $( "#main-title" ).height() );
-        $( ".dropdown" ).css( "height", Math.min(h, $( ".dropdown" ).height() ) );
         
         onScroll();
       }
@@ -645,6 +644,7 @@
               })
           );
         })
+        $( ".dropdown" ).css( "height", Math.min($( window ).height() - 50, $( ".dropdown" ).height() ) );
         
         function cleanCaption( el ) {
           if( el.attr('data-title') ) {

@@ -214,7 +214,8 @@ ul.dropdown{
   text-align: left;
   line-height: 20px;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.25);
-  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overflow-y: scroll;
 }
 
 ul.dropdown li{
