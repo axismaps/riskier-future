@@ -597,7 +597,7 @@
         
         currentPart = part;
             
-        $( "header .current" ).text( "Part " + part + ": " + title.children( "h1" ).attr( "title" ).toUpperCase() );
+        $( "header .current" ).html( "Part " + part + ": <span>" + title.children( "h1" ).attr( "title" ).toUpperCase() + "</span>");
         
         if( next.length > 0 ) {
           $( "header .next" )
@@ -606,7 +606,7 @@
             .on( 'click', function() {
               $( "html, body" ).animate( { 'scrollTop' : next.offset().top + 1 } );
             })
-            .html( "Part " + ( part + 1 ) + ": " + next.children( "h1" ).attr( "title" ).toUpperCase() + ' <i class="fa icon-right-big"></i>' );
+            .html( "Part " + ( part + 1 ) + ": <span>" + next.children( "h1" ).attr( "title" ).toUpperCase() + '</span> <i class="fa icon-right-big"></i>' );
         } else {
           $( "header .next" ).hide();
         }
@@ -621,6 +621,8 @@
         } else {
           $( "header .prev" ).hide();
         }
+        
+        $( 'header .current span, header .next span' ).css('max-width', ($( window ).width() - 320 - 50 - 80 - 50 - 60) / 2);
         
         function getActiveElement( sel, s ) {
           var active;

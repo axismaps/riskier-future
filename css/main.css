@@ -191,6 +191,15 @@ header .next:hover, header .prev:hover{
   background-color: #ddd;
 }
 
+header .current span,
+header .next span {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+  white-space: nowrap;
+}
+
 header .current{
   font-size: 18px;
   font-weight: bold;
