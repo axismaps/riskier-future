@@ -538,7 +538,7 @@
           }, 500 );
         }).on( "click", function(e){
           e.preventDefault();
-          var id = $(this).attr('id');
+          var original = this;
           var fn = $( $(this).attr("href") )
             .css( "background-color", "rgba(1, 155, 139, 0.2)" );
           setTimeout( function(){
@@ -553,7 +553,7 @@
             .html('<i class="fa icon-up-open"></i>')
             .appendTo(fn)
             .on( 'click touchstart', function() {
-              $( "html, body" ).scrollTop( $( '#' + id ).offset().top - 60 );
+              $( "html, body" ).scrollTop( $( original ).offset().top - 60 );
               $(this).remove();
             });
         });
