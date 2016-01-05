@@ -639,9 +639,11 @@
           $( ".dropdown" ).append(
             $( document.createElement( 'li' ) )
               .html( cleanCaption( el ) )
-              .on( 'click touchstart', function() {
+              .on( 'click touchstart', function(e) {
+                e.stopPropagation();
+                e.stopImmediatePropagation();
                 $( "html, body" ).animate( { 'scrollTop' : el.offset().top - 100 } );
-              })
+              });
           );
         })
         $( ".dropdown" ).css( "height", Math.min($( window ).height() - 50, $( ".dropdown" ).height() ) );
