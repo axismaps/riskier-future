@@ -538,9 +538,9 @@
           var fn = $( $(this).attr("href") )
             .css( "background-color", "rgba(1, 155, 139, 0.2)" );
           setTimeout( function(){
-            fn.css( "background-color", "transparent" );
+            fn.css( "background-color", "" );
           },2000);
-          $( "body" ).scrollTop( fn.offset().top - 50 );
+          $( "html, body" ).scrollTop( fn.offset().top - 50 );
           $( "p.footnote.hover" ).remove();
           $( ".footnote-close" ).remove();
         });
