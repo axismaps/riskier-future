@@ -640,7 +640,7 @@
           $( ".dropdown" ).append(
             $( document.createElement( 'li' ) )
               .html( cleanCaption( el ) )
-              .click( function() {
+              .on( 'click touchstart', function() {
                 $( "html, body" ).animate( { 'scrollTop' : el.offset().top - 100 } );
               })
           );
