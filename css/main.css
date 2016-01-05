@@ -327,6 +327,7 @@ div.map.iframe{
   width: 1000px;
   height: 650px;
   padding: 0;
+  overflow: hidden;
 }
 
 div.map video{
