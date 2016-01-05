@@ -78,6 +78,7 @@ figcaption{
   font-family: 'Unit';
   font-size: 12px;
   line-height: 14px;
+  margin-top: 5px;
 }
 
 img.full + figcaption{
