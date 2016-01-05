@@ -355,13 +355,15 @@ div.map video{
 }
 
 .map .header{
-  height: 50px;
-  line-height: 50px;
   background-color: #999;
   color: #fffefe;
   font-size: 24px;
   font-family: 'Unit';
+  height: 50px;
+  line-height: 50px;
+  position: relative;
   text-indent: 60px;
+  z-index: 2;
 }
 
 .map .header a{
@@ -372,6 +374,7 @@ div.map video{
   font-size: 18px;
   text-transform: uppercase;
   cursor: pointer;
+  vertical-align: bottom;
 }
 
 .map a.active, .map a:hover{
