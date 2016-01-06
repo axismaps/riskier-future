@@ -127,13 +127,15 @@
       .on( "mouseover", function(d){
         frame.selectAll(".highlight").classed("highlight",false);
         d3.select(this).classed("highlight",true);
-        d3.select(this).node().parentNode.appendChild(this);
-        probe.datum(d)
-          .html(
-            "<p>" + d.properties.WB_ADM0_NA + "</p>" +
-            "<p>" + Math.round( parseFloat(d.properties.data[currentYear >= minYear ? currentYear : maxYear]) ) + "% urban</p>"
-          )
-          .style("display","block");
+        if(d.properties.data) {
+          d3.select(this).node().parentNode.appendChild(this);
+          probe.datum(d)
+            .html(
+              "<p>" + d.properties.WB_ADM0_NA + "</p>" +
+              "<p>" + Math.round( parseFloat(d.properties.data[currentYear >= minYear ? currentYear : maxYear]) ) + "% urban</p>"
+            )
+            .style("display","block");
+        }
       })
       .on("mousemove",function(d){
         var m = d3.mouse(frame.node())
