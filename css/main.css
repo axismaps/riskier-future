@@ -156,6 +156,16 @@ a:not( .footnote ) {
   text-decoration: none;
 }
 
+.references .footnote {
+  background-color: #fff;
+  transition: background-color 3s;
+}
+
+.references .footnote.highlight {
+  background-color: rgba(1, 155, 139, 0.2);
+  transition: background-color .5s;
+}
+
 /* HEADER */
 
 header{
